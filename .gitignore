@@ -48,3 +48,5 @@ CS32-Proj1/CS32-Proj1/Debug/
 *.out
 *.app
 *.log
+
+*.DS_Store
