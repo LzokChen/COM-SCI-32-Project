@@ -8,14 +8,14 @@
 
 History::History(int nRows, int nCols)
 {
-	if (nRows <= 0 || nCols <= 0 || nRows > MAXROWS || nCols > MAXCOLS)
-	{
-		cout << "***** Arena created with invalid size " << nRows << " by "
-			<< nCols << "!" << endl;
-		exit(1);
-	}
-	m_rows = nRows;
-	m_cols = nCols;
+    if (nRows <= 0 || nCols <= 0 || nRows > MAXROWS || nCols > MAXCOLS)
+    {
+        cout << "***** Arena created with invalid size " << nRows << " by "
+        << nCols << "!" << endl;
+        exit(1);
+    }
+    m_rows = nRows;
+    m_cols = nCols;
     
     // Fill the history grid with dots
     for (int r = 0; r < m_rows; r++)
@@ -54,5 +54,5 @@ void History::display() const
         cout << endl;
     }
     cout << endl;
-
+    
 }
