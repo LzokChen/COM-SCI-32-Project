@@ -17,7 +17,7 @@ public:
 private:
 	int     m_rows;
 	int     m_cols;
-	int     m_n_dZombies;
+    char    m_grid[MAXROWS][MAXCOLS];
 };
 #endif // !History_H
 

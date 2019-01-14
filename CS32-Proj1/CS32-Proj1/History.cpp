@@ -16,47 +16,50 @@ History::History(int nRows, int nCols)
 	}
 	m_rows = nRows;
 	m_cols = nCols;
+    
+    // Fill the history grid with dots
+    for (r = 0; r < m_rows; r++)
+        for (c = 0; c < m_cols; c++)
+            grid[r][c] = '.';
 }
 
 bool History::record(int r, int c)
 {
-	if (r > m_rows || c > m_cols)
-	{
-		return false;
-	}
-	else
-	{
-		return true;
-	}
+    if (r < 0 ||r > m_rows || c < 0 ||c > m_cols)
+    {
+        return false;
+    }
+    else
+    {
+        //save the dead zombie postion
+        switch (grid[r][c])
+        {
+            case '.':  grid[r][c] = 'A'; break;
+            case 'Z':  break;
+            default:   grid[r][c]++; break;  // 'B' through 'Z'
+        }
+        return true;
+    }
 }
 
 void History::display() const
 {
-	// Position (row,col) of the arena coordinate system is represented in
-	// the array element grid[row-1][col-1]
-	char grid[MAXROWS][MAXCOLS];
-	int r, c;
-
-	// Fill the grid with dots
-	for (r = 0; r < m_rows; r++)
-		for (c = 0; c < m_cols; c++)
-			grid[r][c] = '.';
-
-	// Indicate each dead zombie's position
-	for (int k = 0; k <  m_n_dZombies; k++)
-	{
-		char& gridChar = grid[zp->row() - 1][zp->col() - 1];
-		switch (gridChar)
-		{
-		case '.':  gridChar = 'A'; break;
-		case 'Z':  break;
-		default:   gridChar++; break;  // 'B' through 'Z'
-		}
-	}
+    
+    // Draw the grid
+    clearScreen();
+    for (r = 0; r < m_rows; r++)
+    {
+        for (c = 0; c < m_cols; c++)
+            cout << grid[r][c];
+        cout << endl;
+    }
+    cout << endl;
+    
+}
 
 
 	// Draw the grid
-	clearScreen();
+	clearScreen();/Users/Lzok/.Trash/History.cpp
 	for (r = 0; r < m_rows; r++)
 	{
 		for (c = 0; c < m_cols; c++)
