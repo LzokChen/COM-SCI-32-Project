@@ -18,9 +18,9 @@ History::History(int nRows, int nCols)
 	m_cols = nCols;
     
     // Fill the history grid with dots
-    for (r = 0; r < m_rows; r++)
-        for (c = 0; c < m_cols; c++)
-            grid[r][c] = '.';
+    for (int r = 0; r < m_rows; r++)
+        for (int c = 0; c < m_cols; c++)
+            m_grid[r][c] = '.';
 }
 
 bool History::record(int r, int c)
@@ -32,11 +32,11 @@ bool History::record(int r, int c)
     else
     {
         //save the dead zombie postion
-        switch (grid[r][c])
+        switch (m_grid[r][c])
         {
-            case '.':  grid[r][c] = 'A'; break;
+            case '.':  m_grid[r][c] = 'A'; break;
             case 'Z':  break;
-            default:   grid[r][c]++; break;  // 'B' through 'Z'
+            default:   m_grid[r][c]++; break;  // 'B' through 'Z'
         }
         return true;
     }
@@ -47,25 +47,12 @@ void History::display() const
     
     // Draw the grid
     clearScreen();
-    for (r = 0; r < m_rows; r++)
+    for (int r = 0; r < m_rows; r++)
     {
-        for (c = 0; c < m_cols; c++)
-            cout << grid[r][c];
+        for (int c = 0; c < m_cols; c++)
+            cout << m_grid[r][c];
         cout << endl;
     }
     cout << endl;
-    
-}
-
-
-	// Draw the grid
-	clearScreen();/Users/Lzok/.Trash/History.cpp
-	for (r = 0; r < m_rows; r++)
-	{
-		for (c = 0; c < m_cols; c++)
-			cout << grid[r][c];
-		cout << endl;
-	}
-	cout << endl;
 
 }
