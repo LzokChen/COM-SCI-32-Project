@@ -43,9 +43,8 @@ void History::display() const
 			grid[r][c] = '.';
 
 	// Indicate each dead zombie's position
-	for (int k = 0; k <  m_d_nZombies; k++)
+	for (int k = 0; k <  m_n_dZombies; k++)
 	{
-		const Zombie* zp = m_d_zombies[k];
 		char& gridChar = grid[zp->row() - 1][zp->col() - 1];
 		switch (gridChar)
 		{
@@ -64,9 +63,6 @@ void History::display() const
 			cout << grid[r][c];
 		cout << endl;
 	}
-	cout << endl;
-
-	// Write message
 	cout << endl;
 
 }

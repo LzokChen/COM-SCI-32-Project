@@ -17,8 +17,7 @@ public:
 private:
 	int     m_rows;
 	int     m_cols;
-	Zombie* m_d_zombies[MAXZOMBIES];
-	int     m_d_nZombies;
+	int     m_n_dZombies;
 };
 #endif // !History_H
 

@@ -188,3 +188,8 @@ bool Arena::moveZombies()
 	// return true if the player is still alive, false otherwise
 	return !m_player->isDead();
 }
+
+History& Arena::histroy() 
+{
+	return m_history;
+}
