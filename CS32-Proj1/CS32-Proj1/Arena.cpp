@@ -193,7 +193,7 @@ bool Arena::moveZombies()
 }
 
 //return a reference to a History object
-History& Arena::histroy() 
+History& Arena::history()
 {
 	return m_history;
 }

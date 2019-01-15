@@ -1,5 +1,5 @@
 //History.h
-
+#include "globals.h"
 #ifndef History_H
 #define History_H
 

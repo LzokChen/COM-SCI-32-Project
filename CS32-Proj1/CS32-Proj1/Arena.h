@@ -22,7 +22,7 @@ public:
 	int     numZombiesAt(int r, int c) const;
 	bool    determineNewPosition(int& r, int& c, int dir) const;
 	void    display() const;
-	History& histroy();
+	History& history();
 
 	// Mutators
 	bool   addZombie(int r, int c);

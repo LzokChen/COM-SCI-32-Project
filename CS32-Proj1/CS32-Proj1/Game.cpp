@@ -81,8 +81,8 @@ void Game::play()
 				p->moveOrAttack(decodeDirection(action[0]));
 				break;
 			case 'h':
-				// display histroy
-				m_arena->histroy().display();
+				// display history
+				m_arena->history().display();
 				
 				cout << "Press enter to continue.";	//print the prompt
 				cin.ignore(10000, '\n');
