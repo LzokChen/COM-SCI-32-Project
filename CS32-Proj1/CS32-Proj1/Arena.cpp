@@ -192,8 +192,8 @@ bool Arena::moveZombies()
 	return !m_player->isDead();
 }
 
+//return a reference to a History object
 History& Arena::histroy() 
 {
-	History& rh = m_history;	//return a reference to a History object
-	return rh;
+	return m_history;
 }

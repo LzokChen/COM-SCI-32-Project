@@ -83,8 +83,8 @@ void Game::play()
 			case 'h':
 				// display histroy
 				m_arena->histroy().display();
-
-				cout << "Press enter to continue.";
+				
+				cout << "Press enter to continue.";	//print the prompt
 				cin.ignore(10000, '\n');
 
 				m_arena->display(); //	display the arena again

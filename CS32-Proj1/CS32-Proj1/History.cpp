@@ -8,12 +8,6 @@
 
 History::History(int nRows, int nCols)
 {
-    if (nRows <= 0 || nCols <= 0 || nRows > MAXROWS || nCols > MAXCOLS)
-    {
-        cout << "***** Arena created with invalid size " << nRows << " by "
-        << nCols << "!" << endl;
-        exit(1);
-    }
     m_rows = nRows;
     m_cols = nCols;
     
@@ -27,13 +21,14 @@ bool History::record(int r, int c)
 {
     if (r < 0 ||r > m_rows || c < 0 ||c > m_cols)
     {
-        return false;
+        return false;	//if r and c are not within bounds, return false
     }
     else
     {
-        //save the dead zombie postion
+        //save the dead zombie postion / change the history grid content
 		int row = r - 1;
 		int	col = c - 1;
+
         switch (m_grid[row][col])	//row 1 col 1 is in the m_grid[0][0]
         {
             case '.':  m_grid[row][col] = 'A'; break;
@@ -46,7 +41,6 @@ bool History::record(int r, int c)
 
 void History::display() const
 {
-    
     // Draw the grid
     clearScreen();
     for (int r = 0; r < m_rows; r++)
@@ -56,5 +50,4 @@ void History::display() const
         cout << endl;
     }
     cout << endl;
-    
 }
