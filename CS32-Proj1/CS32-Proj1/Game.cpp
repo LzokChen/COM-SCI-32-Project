@@ -81,7 +81,14 @@ void Game::play()
 				p->moveOrAttack(decodeDirection(action[0]));
 				break;
 			case 'h':
-				// histroy
+				// display histroy
+				m_arena->histroy().display();
+
+				cout << "Press enter to continue.";
+				cin.ignore(10000, '\n');
+
+				m_arena->display(); //	display the arena again
+				continue;	//	skip the following movezombies(), so it does not count as the player's turn
 				break;
 			}
 		}

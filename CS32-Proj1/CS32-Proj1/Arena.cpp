@@ -167,7 +167,7 @@ bool Arena::attackZombieAt(int r, int c, int dir)
 	}
 	if (k < m_nZombies  &&  m_zombies[k]->getAttacked(dir))  // zombie dies
 	{
-        //save the zombie die location
+        //record the zombie die location
         m_history.record(r, c);
         
 		delete m_zombies[k];

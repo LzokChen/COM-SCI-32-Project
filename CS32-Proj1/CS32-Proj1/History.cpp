@@ -32,11 +32,13 @@ bool History::record(int r, int c)
     else
     {
         //save the dead zombie postion
-        switch (m_grid[r][c])
+		int row = r - 1;
+		int	col = c - 1;
+        switch (m_grid[row][col])	//row 1 col 1 is in the m_grid[0][0]
         {
-            case '.':  m_grid[r][c] = 'A'; break;
+            case '.':  m_grid[row][col] = 'A'; break;
             case 'Z':  break;
-            default:   m_grid[r][c]++; break;  // 'B' through 'Z'
+            default:   m_grid[row][col]++; break;  // 'B' through 'Z'
         }
         return true;
     }

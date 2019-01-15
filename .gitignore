@@ -1,4 +1,7 @@
 
+#proj 1
+CS32-Proj1/x64/
+CS32-Proj1/CS32-Proj1/x64/
 CS32-Proj1/Debug/
 CS32-Proj1/CS32-Proj1/Debug/
 
@@ -49,4 +52,5 @@ CS32-Proj1/CS32-Proj1/Debug/
 *.app
 *.log
 
+#for mac os
 *.DS_Store
