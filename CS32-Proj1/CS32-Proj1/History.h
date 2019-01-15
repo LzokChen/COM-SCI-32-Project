@@ -1,6 +1,5 @@
 //History.h
 
-#include "Zombie.h"
 #ifndef History_H
 #define History_H
 
