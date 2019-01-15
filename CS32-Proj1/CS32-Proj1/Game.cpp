@@ -1,6 +1,9 @@
 //Game.cpp
 #include "globals.h"
 #include "Game.h"
+#include "Arena.h"
+#include "Player.h"
+#include "Zombie.h"
 
 ///////////////////////////////////////////////////////////////////////////
 //  Game implementations

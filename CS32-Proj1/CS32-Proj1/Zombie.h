@@ -3,8 +3,7 @@
 #ifndef Zombie_H
 #define Zombie_H
 
-class Arena;  // This is needed to let the compiler know that Arena is a
-			  // type name, since it's mentioned in the Zombie declaration.
+class Arena;  
 
 class Zombie
 {

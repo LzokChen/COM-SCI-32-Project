@@ -1,11 +1,12 @@
 //Arena.h
 #include "globals.h"
 #include "History.h"
-#include "Player.h"
-#include "Zombie.h"
 
 #ifndef Arena_H
 #define Arena_H
+
+class Player;
+class Zombie;
 
 class Arena
 {

@@ -1,8 +1,9 @@
 //Game.h
-#include "Arena.h"
 
 #ifndef Game_H
 #define Game_H
+
+class Arena;
 
 class Game
 {

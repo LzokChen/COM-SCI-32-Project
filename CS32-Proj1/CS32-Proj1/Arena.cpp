@@ -1,5 +1,8 @@
 //Arena.cpp
 #include "Arena.h"
+#include "Zombie.h"
+#include "Player.h"
+#include "History.h"
 
 ///////////////////////////////////////////////////////////////////////////
 //  Arena implementations
