@@ -26,5 +26,8 @@
     <ClInclude Include="Set.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="SSNSet.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

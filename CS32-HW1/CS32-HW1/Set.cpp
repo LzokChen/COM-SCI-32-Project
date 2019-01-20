@@ -40,25 +40,25 @@ bool Set::insert(const ItemType& value)
 
 bool Set::erase(const ItemType& value)
 { 
-	if (this->contains(value) == true) //check if the set alreay contains the value
+	int index = -1; //defalut -1
+	//find the location of the value that we want to erase
+	for (int k = 0; k < m_size; k++)
 	{
-		//find the location of the value that we want to erase
-		int index;
-		for (int k = 0; k < m_size; k++)
+		if (m_items[k] == value)
 		{
-			if (m_items[k] == value)
-			{
-				index = k;	
-				break;
-			}
+			index = k;
+			break;
 		}
+	}
 
+	if (index != -1)	
+	{
 		m_size--;
 
 		//move the values(after the index -- the erased value) one position ahead
 		for (index; index < m_size; index++)
 		{
-			m_items[index] = m_items[index + 1]; 
+			m_items[index] = m_items[index + 1];
 		}
 
 		return true;
