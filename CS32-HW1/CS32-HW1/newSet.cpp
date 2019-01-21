@@ -18,9 +18,17 @@ Set::Set()
 
 Set::Set(int max)
 {
-	m_size = 0;
-	m_max = max;				
-	m_items = new ItemType[m_max];
+	if (max < 0)
+	{
+		cout << "invaild max (the maximum capacity of a Set cannot be negative)." << endl;
+		exit(-1);
+	}
+	else
+	{
+		m_size = 0;
+		m_max = max;
+		m_items = new ItemType[m_max];
+	}
 }
 
 Set::~Set()
@@ -72,10 +80,12 @@ int Set::size() const
 bool Set::insert(const ItemType& value)
 {
 	//check if the set is full or already contains the value
-	if (m_size < DEFAULT_MAX_ITEMS && this->contains(value) == false)
+	if (m_size < m_max && this->contains(value) == false)
 	{
 		m_items[m_size] = value;
 		m_size++;
+
+		return true;
 	}
 	else
 	{
@@ -130,7 +140,7 @@ bool Set::contains(const ItemType& value) const
 
 bool Set::get(int i, ItemType& value) const
 {
-	if (i < m_size)
+	if (0 <= i || i < m_size)
 	{
 		for (int k = 0; k < m_size; k++)	//for each values in the set
 		{
@@ -146,9 +156,10 @@ bool Set::get(int i, ItemType& value) const
 			if (counter == i)
 			{
 				value = m_items[k];
-				return true;
+				break;
 			}
 		}
+		return true;
 	}
 	else
 	{

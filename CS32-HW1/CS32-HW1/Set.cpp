@@ -31,6 +31,7 @@ bool Set::insert(const ItemType& value)
 	{
 		m_items[m_size] = value;
 		m_size++;
+		return true;
 	}
 	else
 	{
@@ -85,7 +86,7 @@ bool Set::contains(const ItemType& value) const
 
 bool Set::get(int i, ItemType& value) const
 {
-	if (i < m_size)
+	if (0 <= i || i < m_size)
 	{
 		for (int k = 0; k < m_size; k++)	//for each values in the set
 		{
@@ -101,9 +102,10 @@ bool Set::get(int i, ItemType& value) const
 			if (counter == i)
 			{
 				value = m_items[k];
-				return true;
+				break;
 			}
 		}
+		return true;
 	}
 	else 
 	{

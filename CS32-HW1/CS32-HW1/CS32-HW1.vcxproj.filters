@@ -18,17 +18,11 @@
     <ClCompile Include="newSet.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="SSNSet.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="testSSNSet.cpp">
+    <ClCompile Include="testnewSet.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="SSNSet.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="newSet.h">
       <Filter>Header Files</Filter>
     </ClInclude>
