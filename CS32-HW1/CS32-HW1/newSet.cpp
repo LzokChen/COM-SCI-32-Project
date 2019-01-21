@@ -111,7 +111,7 @@ bool Set::erase(const ItemType& value)
 		m_size--;
 
 		//move the values(after the index -- the erased value) one position ahead
-		for (index; index < m_size; index++)
+		for ( ; index < m_size; index++)
 		{
 			m_items[index] = m_items[index + 1];
 		}
