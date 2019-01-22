@@ -15,15 +15,21 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="newSet.cpp">
+    <ClCompile Include="Set.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="testnewSet.cpp">
+    <ClCompile Include="SSNSet.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="testSSNSet.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="newSet.h">
+    <ClInclude Include="Set.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SSNSet.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

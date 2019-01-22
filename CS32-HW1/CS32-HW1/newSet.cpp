@@ -51,19 +51,23 @@ Set &Set::operator=(const Set &source)
 {
 	//check if the source variable is the target variable itself
 	if (&source == this)
-		return *this;	//do nothing
-
-	delete[] m_items; //free the memory currenty held by the target variable
-	
-	m_size = source.m_size;
-	m_max = source.m_max;	//Determine how much memory is used by the source varialbe
-	m_items = new ItemType[m_max];	//allocate enough storage
-	for (int k = 0; k < m_size; k++)
 	{
-		m_items[k] = source.m_items[k];	//copy all the value
+		return *this;	//do nothing
 	}
+	else
+	{
+		delete[] m_items; //free the memory currenty held by the target variable
+	
+		m_size = source.m_size;
+		m_max = source.m_max;	//Determine how much memory is used by the source varialbe
+		m_items = new ItemType[m_max];	//allocate enough storage
+		for (int k = 0; k < m_size; k++)
+		{
+			m_items[k] = source.m_items[k];	//copy all the value
+		}
 
-	return *this;
+		return *this;
+	}
 }
 
 

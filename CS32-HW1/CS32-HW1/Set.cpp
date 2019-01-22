@@ -115,7 +115,27 @@ bool Set::get(int i, ItemType& value) const
 
 void Set::swap(Set& other)
 {
-	Set temp = other;
-	other = *this;
-	*this = temp;
+	int maxlength;
+	if (m_size >= other.m_size)
+	{
+		maxlength = m_size;
+	}
+	else
+	{
+		maxlength = other.m_size;
+	}
+
+	//swap the elements of m_items
+	for (int k = 0; k < maxlength; k++)
+	{
+		ItemType temp = other.m_items[k];
+		other.m_items[k] = m_items[k];
+		m_items[k] = temp;
+	}
+
+	//swap the m_size
+	int tempsize = other.m_size;
+	other.m_size = m_size;
+	m_size = tempsize;
+
 }
