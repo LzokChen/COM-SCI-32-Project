@@ -5,15 +5,7 @@
 
 #include <string>
 
-using ItemType = std::string;
-
-struct Node	//Node for circular doubly-linked list
-{
-	ItemType val;		//store the value
-	Node *prev;			//point to previous node
-	Node *next;			//point to next node
-
-}; 
+using ItemType = std::string; 
 
 class Set
 {
@@ -54,8 +46,20 @@ public:
 	//assignment operator
 
 private:
+	struct Node	//Node for circular doubly-linked list
+	{
+		ItemType val;		//store the value
+		Node *prev;			//point to previous node
+		Node *next;			//point to next node
+
+	};
 	int		m_size;						//number of items in the set
 	Node	m_dummy;					//dummy node
+
 };
+
+void unite(const Set& s1, const Set& s2, Set& result);
+void subtract(const Set& s1, const Set& s2, Set& result);
+
 
 #endif // SET_INCLUDED

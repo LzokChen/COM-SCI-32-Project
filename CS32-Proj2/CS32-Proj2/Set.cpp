@@ -154,7 +154,7 @@ Set &Set::operator=(const Set& rhs)
 	}
 	else
 	{
-		//delete the old node first
+		//delete the old nodes first
 		Node *d = m_dummy.next;	//start from the node next to the dummy node
 		while (d != &m_dummy)	//while p does not reach the end of the list(dummy)
 		{
@@ -187,5 +187,29 @@ Set &Set::operator=(const Set& rhs)
 		}
 		
 		return *this;
+	}
+}
+
+void unite(const Set& s1, const Set& s2, Set& result)
+{
+	result = s1;	//use assignment operatior,  after that result only contain the values of s1
+
+	for (int k = 0; k < s2.size(); k++)
+	{
+		ItemType temp;
+		s2.get(k, temp);		//get value from s2
+		result.insert(temp);	//insert the value into result if it does not exist
+	}
+}
+
+void subtract(const Set& s1, const Set& s2, Set& result)
+{
+	result = s1;	//use assignment operatior,  after that result only contain the values of s1
+
+	for (int k = 0; k < s2.size(); k++)
+	{
+		ItemType temp;
+		s2.get(k, temp);		//get value from s2
+		result.erase(temp);		//erase the value if it exist in result
 	}
 }
