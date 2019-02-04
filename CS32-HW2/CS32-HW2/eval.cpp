@@ -7,15 +7,17 @@
 #include <cassert>
 using namespace std;
 
+void deleteAllBlank(string &s);
+//delete all blanks
 
-bool IfValid(string infix);
+bool ifValid(string infix);
 //check if infix is syntactically valid
 
 bool precendence(char low, char high);
 //compare two operator's precendences
 //return true if low's precendence is lower or equal to high's precendence
 
-void InfixToPostfix(string infix, string& postfix);
+void infixToPostfix(string infix, string& postfix);
 //convert infix to postfix
 
 void evaluation(const Set& trueValues, const Set& falseValues, string& postfix, bool& result);
@@ -24,7 +26,10 @@ void evaluation(const Set& trueValues, const Set& falseValues, string& postfix, 
 
 int evaluate(string infix, const Set& trueValues, const Set& falseValues, string& postfix, bool& result)
 {
-	if (!IfValid(infix)) return 1;	//the infix is not syntactically valid
+	deleteAllBlank(infix);
+	//cout << infix << endl;
+
+	if (!ifValid(infix)) return 1;	//the infix is not syntactically valid
 
 	int size = infix.length();
 	for (int k = 0; k < size; k++)
@@ -41,33 +46,89 @@ int evaluate(string infix, const Set& trueValues, const Set& falseValues, string
 	}
 
 	// if the function reach here, we knew that the infix syntactically valid, it only contains the chr that is operand, '(', ')' or operator 
-	InfixToPostfix(infix, postfix);
+	infixToPostfix(infix, postfix);
 	evaluation(trueValues, falseValues, postfix, result);
 	return 0;
 }
 
-bool IfValid(string infix)
+void deleteAllBlank(string &s)
+{
+	while (1)
+	{
+		unsigned int pos = s.find(' ');
+		if (pos == string::npos)
+		{
+			return;
+		}
+		s.erase(pos, 1);
+	}
+}
+
+
+bool ifValid(string infix)
 {
 	int open_p = 0;		// the number of open parentheses
 	int close_p = 0;	// the number of close parentheses
 	int size = infix.length();
 
-	for (int k = 0; k < size; k++)
+	if (size == 0) return false; //the infix is empty
+
+	for (int k = 0; k < size; k++) 
 	{
-		if (!islower(infix[k]))	//if it it not lower case letter
+		if (islower(infix[k])) //if it is an operend (lower case letter)
+		{
+			//if there are two consecutive operend, return false
+			if (k - 1 >= 0)
+				if (islower(infix[k-1]))
+					return false;
+			if (k + 1 < size)
+				if (islower(infix[k+1]))
+					return false;
+		}
+		else					//if it is not an operend £¨lower case letter£©
 		{
 			switch (infix[k])
 			{
 			case '(':	//if it is '('
+				if (k - 1 >= 0)	
+					if (islower(infix[k - 1]))
+						return false;	//if it has a operend on the left of open parenthesis
+				if (k + 1 >= size)
+					return false;		//if it if it does not exist infix[k+1]
+				else if (infix[k + 1] == ')')
+					return false;			//if it has a close parenthesis on the right of open parenthesis
+
 				open_p++;
 				break;
+
 			case ')':	//if it is ')'	
+				if (k + 1 < size)
+					if (islower(infix[k + 1]))
+						return false;	//if it has a operend on the right of close parenthesis
+				if (k - 1 < 0)
+					return false;		//if it if it does not exist infix[k-1]
+				else if (infix[k - 1] == '(')
+					return false;			//if it has a open parenthesis on the left of open parenthesis
+
 				close_p++;
 				break;
-			case '!': case '&': case '|': case ' ':	//if it is an operator or blank
+
+			case '!':	//if it is an unary boolean operator '!'
+				if (k + 1 >= size)
+					return false; //if it does not exist infix[k+1]
 				break;
-			default:
-				return false;
+
+			case '&': case '|':	//if it is an binary boolean operator '&' or '|'
+				if (k - 1 < 0 || k + 1 > size)
+					return false;	//if it does not exist infix[k-1] or infix[k+1]
+				else if (!islower(infix[k - 1]) && infix[k - 1] != ')')
+					return false;	//if infix[k-1] or infix [k+1] is not a operend
+				else if (!islower(infix[k + 1]) && infix[k + 1] != '!' && infix[k + 1] != '(')
+					return false;
+				break;
+
+			default:	//if it is neither an operend nor a boolean operator
+				return false;		
 				break;
 			}
 		}
@@ -92,7 +153,7 @@ bool precendence(char low, char high)
 }
 
 //we assume that the infix syntactically valid, it only contains the chr that is operand, '(', ')' or operator 
-void InfixToPostfix(string infix, string& postfix)
+void infixToPostfix(string infix, string& postfix)
 {
 	postfix = "";
 	stack<char> operator_stack;
@@ -128,8 +189,6 @@ void InfixToPostfix(string infix, string& postfix)
 				operator_stack.pop();
 			}
 			operator_stack.push(infix[k]);
-			break;
-		case ' ':					//if it is blank
 			break;
 		}
 	}
@@ -180,23 +239,36 @@ void evaluation(const Set& trueValues, const Set& falseValues, string& postfix, 
 
 int main()
 {
-	Set True;
-	True.insert('a');
-	True.insert('c');
-	True.insert('l');
-	True.insert('u');
+	string trueChars = "tywz";
+	string falseChars = "fnx";
+	Set trues;
+	Set falses;
+	for (int k = 0; k < trueChars.size(); k++)
+		trues.insert(trueChars[k]);
+	for (int k = 0; k < falseChars.size(); k++)
+		falses.insert(falseChars[k]);
 
-	Set False;
-	False.insert('n');
-	False.insert('s');
-	False.insert('x');
-
-	string inf = "a & !s";
-	string posf;
-	bool answer = false;
-	cout<<"return "<<evaluate(inf, True, False, posf, answer)<<endl;
-	if (answer)
-		cout << "the result of " << inf << " is true" << endl;
-	else
-		cout << "the result of " << inf << " is false" << endl;
+	string pf;
+	bool answer;
+	assert(evaluate("w| f", trues, falses, pf, answer) == 0 && pf == "wf|" &&  answer);
+	assert(evaluate("y|", trues, falses, pf, answer) == 1);
+	assert(evaluate("n t", trues, falses, pf, answer) == 1);
+	assert(evaluate("nt", trues, falses, pf, answer) == 1);
+	assert(evaluate("()", trues, falses, pf, answer) == 1);
+	assert(evaluate("y(n|y)", trues, falses, pf, answer) == 1);
+	assert(evaluate("t(&n)", trues, falses, pf, answer) == 1);
+	assert(evaluate("(n&(t|7)", trues, falses, pf, answer) == 1);
+	assert(evaluate("", trues, falses, pf, answer) == 1);
+	assert(evaluate("f  |  !f & (t&n) ", trues, falses, pf, answer) == 0
+		&& pf == "ff!tn&&|" && !answer);
+	assert(evaluate(" x  ", trues, falses, pf, answer) == 0 && pf == "x" && !answer);
+	trues.insert('x');
+	assert(evaluate("((x))", trues, falses, pf, answer) == 3);
+	falses.erase('x');
+	assert(evaluate("((x))", trues, falses, pf, answer) == 0 && pf == "x"  &&  answer);
+	trues.erase('w');
+	assert(evaluate("w| f", trues, falses, pf, answer) == 2);
+	falses.insert('w');
+	assert(evaluate("w| f", trues, falses, pf, answer) == 0 && pf == "wf|" && !answer);
+	cout << "Passed all tests" << endl;
 }
