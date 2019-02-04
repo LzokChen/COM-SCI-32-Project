@@ -1,9 +1,10 @@
 //eval.cpp
 #include "Set.h"
 #include <iostream>
-#include <cassert>
 #include <string>
 #include <stack>
+#include <cctype>
+#include <cassert>
 using namespace std;
 
 
@@ -28,7 +29,7 @@ int evaluate(string infix, const Set& trueValues, const Set& falseValues, string
 	int size = infix.length();
 	for (int k = 0; k < size; k++)
 	{
-		if (infix[k] >= 'a' && infix[k] <= 'z')
+		if (islower(infix[k]))
 		{
 			//a letter in the expression is in neither the trueValues nor the falseValues sets
 			if (!trueValues.contains(infix[k]) && !falseValues.contains(infix[k]))
@@ -53,7 +54,7 @@ bool IfValid(string infix)
 
 	for (int k = 0; k < size; k++)
 	{
-		if (infix[k]<'a'||infix[k]>'z')	//if it it not lower case letter
+		if (!islower(infix[k]))	//if it it not lower case letter
 		{
 			switch (infix[k])
 			{
@@ -147,7 +148,7 @@ void evaluation(const Set& trueValues, const Set& falseValues, string& postfix, 
 
 	for (int k = 0; k < size; k++)
 	{
-		if (postfix[k] >= 'a' && postfix[k] <= 'z')	//if it is an operand (low case char)
+		if (islower(postfix[k]))	//if it is an operand (low case char)
 		{
 			if (trueValues.contains(postfix[k]))
 				operand_stack.push(true);
