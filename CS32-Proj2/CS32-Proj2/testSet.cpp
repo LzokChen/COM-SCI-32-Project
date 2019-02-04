@@ -6,33 +6,25 @@ using namespace std;
 
 void test()
 {
-	string temp;
+	Set res;
+	res.insert("r");
 
 	Set ss1;
-	ss1.insert("aaa");
-	ss1.insert("ccc");
-	ss1.insert("bbb");
-
+	ss1.insert("a");
+	ss1.insert("b");
+	
 	Set ss2;
-	ss2.insert("fff");
-	ss2.insert("ggg");
+	ss2.insert("b");
+	ss2.insert("c");
 
-	//test copy constructor
-	Set ss3 = ss1;
-	assert(ss3.size() == 3);			      
-	assert(ss3.contains("bbb"));		
-	assert(ss3.get(1, temp) && temp =="bbb");
+	//test function unite
+	unite(ss1, ss2, res);		//res should only contains "a" "b" and "c"
+	assert(!res.contains("r"));
+	assert(res.contains("a")&&res.contains("b")&&res.contains("c"));
 
-	//test assignment operator
-	ss1 = ss2;
-	assert(ss1.size() == 2);
-	assert(!ss1.contains("bbb"));
-	assert(ss1.get(1, temp) && temp == "ggg");
-
-	//test swap
-	ss1.swap(ss3);
-	assert(ss3.size() == 2 && ss1.size()==3);
-	assert(ss3.contains("ggg")&& ss1.contains("aaa"));
+	subtract(ss1, ss2, res);	//res should only contains "a"
+	assert(!res.contains("b") && !res.contains("c"));
+	assert(res.contains("a"));
 
 }
 

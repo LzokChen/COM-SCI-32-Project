@@ -3,9 +3,8 @@
 #ifndef SET_INCLUDED
 #define SET_INCLUDED
 
-#include <string>
 
-using ItemType = std::string; 
+using ItemType = char; 
 
 class Set
 {
