@@ -31,8 +31,7 @@ int evaluate(string infix, const Set& trueValues, const Set& falseValues, string
 
 	if (!ifValid(infix)) return 1;	//the infix is not syntactically valid
 
-	int size = infix.length();
-	for (int k = 0; k < size; k++)
+	for (int k = 0; k < infix.length(); k++)
 	{
 		if (islower(infix[k]))
 		{
@@ -71,11 +70,10 @@ bool ifValid(string infix)
 {
 	int open_p = 0;		// the number of open parentheses
 	int close_p = 0;	// the number of close parentheses
-	int size = infix.length();
 
-	if (size == 0) return false; //the infix is empty
+	if (infix.length() == 0) return false; //the infix is empty
 
-	for (int k = 0; k < size; k++) 
+	for (int k = 0; k < infix.length(); k++)
 	{
 		if (islower(infix[k])) //if it is an operend (lower case letter)
 		{
@@ -83,7 +81,7 @@ bool ifValid(string infix)
 			if (k - 1 >= 0)
 				if (islower(infix[k-1]))
 					return false;
-			if (k + 1 < size)
+			if (k + 1 < infix.length())
 				if (islower(infix[k+1]))
 					return false;
 		}
@@ -95,7 +93,7 @@ bool ifValid(string infix)
 				if (k - 1 >= 0)	
 					if (islower(infix[k - 1]))
 						return false;	//if it has a operend on the left of open parenthesis
-				if (k + 1 >= size)
+				if (k + 1 >= infix.length())
 					return false;		//if it if it does not exist infix[k+1]
 				else if (infix[k + 1] == ')')
 					return false;			//if it has a close parenthesis on the right of open parenthesis
@@ -104,7 +102,7 @@ bool ifValid(string infix)
 				break;
 
 			case ')':	//if it is ')'	
-				if (k + 1 < size)
+				if (k + 1 < infix.length())
 					if (islower(infix[k + 1]))
 						return false;	//if it has a operend on the right of close parenthesis
 				if (k - 1 < 0)
@@ -116,12 +114,12 @@ bool ifValid(string infix)
 				break;
 
 			case '!':	//if it is an unary boolean operator '!'
-				if (k + 1 >= size)
+				if (k + 1 >= infix.length())
 					return false; //if it does not exist infix[k+1]
 				break;
 
 			case '&': case '|':	//if it is an binary boolean operator '&' or '|'
-				if (k - 1 < 0 || k + 1 > size)
+				if (k - 1 < 0 || k + 1 > infix.length())
 					return false;	//if it does not exist infix[k-1] or infix[k+1]
 				else if (!islower(infix[k - 1]) && infix[k - 1] != ')')
 					return false;	//if infix[k-1] or infix [k+1] is not a operend
@@ -159,10 +157,8 @@ void infixToPostfix(string infix, string& postfix)
 {
 	postfix = "";
 	stack<char> operator_stack;
-
-	int size = infix.length();
 	
-	for (int k = 0; k < size; k++)
+	for (int k = 0; k < infix.length(); k++)
 	{
 		switch (infix[k])
 		{
@@ -205,9 +201,8 @@ void infixToPostfix(string infix, string& postfix)
 void evaluation(const Set& trueValues, const Set& falseValues, string& postfix, bool& result)
 {
 	stack<bool> operand_stack;
-	int size = postfix.length();
 
-	for (int k = 0; k < size; k++)
+	for (int k = 0; k < postfix.length(); k++)
 	{
 		if (islower(postfix[k]))	//if it is an operand (low case char)
 		{
