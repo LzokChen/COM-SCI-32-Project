@@ -45,7 +45,9 @@ int evaluate(string infix, const Set& trueValues, const Set& falseValues, string
 		}
 	}
 
-	// if the function reach here, we knew that the infix syntactically valid, it only contains the chr that is operand, '(', ')' or operator 
+	// if the function reach here, we knew that the infix syntactically valid, 
+	// it only contains the chr that is operand, '(', ')' or operator 
+	// every operand letter in the expression appears in either trueValues or falseValues but not both
 	infixToPostfix(infix, postfix);
 	evaluation(trueValues, falseValues, postfix, result);
 	return 0;
@@ -53,14 +55,14 @@ int evaluate(string infix, const Set& trueValues, const Set& falseValues, string
 
 void deleteAllBlank(string &s)
 {
-	while (1)
+	while (1)	//iterate until return
 	{
-		unsigned int pos = s.find(' ');
-		if (pos == string::npos)
+		string::size_type pos = s.find(' ');	//find the position of blank
+		if (pos == string::npos)				//if it reach the end of the string
 		{
 			return;
 		}
-		s.erase(pos, 1);
+		s.erase(pos, 1);						//erase the position of blank
 	}
 }
 
@@ -211,7 +213,8 @@ void evaluation(const Set& trueValues, const Set& falseValues, string& postfix, 
 		{
 			if (trueValues.contains(postfix[k]))
 				operand_stack.push(true);
-			else operand_stack.push(false);
+			else if (falseValues.contains(postfix[k]))
+				operand_stack.push(false);
 		}
 		else if (postfix[k]=='!')				//if it is an unary boolean operator
 		{
@@ -235,6 +238,7 @@ void evaluation(const Set& trueValues, const Set& falseValues, string& postfix, 
 
 	result = operand_stack.top();
 }
+
 
 
 int main()

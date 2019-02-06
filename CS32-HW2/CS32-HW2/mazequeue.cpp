@@ -58,7 +58,6 @@ bool pathExists(string maze[], int nRows, int nCols, int sr, int sc, int er, int
 	while (!coordQueue.empty())
 	{
 		Coord cur = coordQueue.front();
-		cout << "(" << cur.r() << "," << cur.c() << ")" << endl;
 		coordQueue.pop();
 		if (cur.r() == end.r() && cur.c() == end.c())
 			return true;	//have solution
