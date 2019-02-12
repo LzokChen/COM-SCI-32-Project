@@ -1,32 +1,4 @@
 //maze.cpp
-///*
-#include <iostream>
-#include <string>
-
-using namespace std;
-bool pathExists(string maze[], int nRows, int nCols, int sr, int sc, int er, int ec);
-int main()
-{
-	string maze[10] = {
-		"XXXXXXXXXX",
-		"X....X...X",
-		"X.X.XXX..X",
-		"XXX....X.X",
-		"X.X.XXXXXX",
-		"X.X...X..X",
-		"X...X.X..X",
-		"XXXXX.X.XX",
-		"X........X",
-		"XXXXXXXXXX"
-	};
-
-	if (pathExists(maze, 10, 10, 3, 5, 8, 8))
-		cout << "Solvable!" << endl;
-	else
-		cout << "Out of luck!" << endl;
-}
-//*/
-
 
 bool pathExists(string maze[], int nRows, int nCols, int sr, int sc, int er, int ec)
 {

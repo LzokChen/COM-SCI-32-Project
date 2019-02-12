@@ -13,7 +13,7 @@
 //	50 40 30			3
 int countIncludes(const double a1[], int n1, const double a2[], int n2)
 {
-	if (n2 <= 0) return 1;		//we searched all double in the a2
+	if (n2 <= 0) return 1;					//we searched all double in the a2
 	if (n1 <= 0 || n2 > n1) return 0;		//a1 is empty or a1 has less items than a2
 
 	int result;
@@ -99,33 +99,4 @@ void order(double a[], int n)
 
 	order(a, firstNotGreater);				//rearrange the first part (all item greater than divider a[0])
 	order(a + firstLess, n - firstLess);	//rearrange the second part (all item smaller than divider a[0])
-}
-
-//////////test code
-
-#include <iostream>
-#include <string>
-using namespace std;
-
-void main()
-{
-	double arr1[7] = { 10,50,40,20,50,40,30 };
-	double arr2[3] = { 10,20,40 };
-	double arr3[3] = { 10,40,30 };
-	double arr4[3] = { 20,10,40 };
-	double arr5[3] = { 50,40,30 };
-
-
-	cout << "countIncludes arr2: " << countIncludes(arr1, 7, arr2, 3) << endl;
-	cout << "countIncludes arr3: " << countIncludes(arr1, 7, arr3, 3) << endl;
-	cout << "countIncludes arr4: " << countIncludes(arr1, 7, arr4, 3) << endl;
-	cout << "countIncludes arr5: " << countIncludes(arr1, 7, arr5, 3) << endl;
-
-	order(arr1, 7);
-
-	for (int i = 0; i < 7; i++)
-	{
-		cout << arr1[i] << " ";
-	}
-
 }

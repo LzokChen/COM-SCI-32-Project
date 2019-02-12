@@ -1,49 +1,6 @@
 //linear.cpp
 
-
-#include <iostream>
-#include <string>
-using namespace std;
-
-bool anyTrue(const double a[], int n);
-int countTrue(const double a[], int n);
-int firstTrue(const double a[], int n);
-int positionOfMin(const double a[], int n);
-bool includes(const double a1[], int n1, const double a2[], int n2);
-
-bool somePredicate(double x)
-{
-	return x > 0;
-}
-
-void main()
-{
-	int n = 5;
-	double arr1[5] = {  .1, .2, .3, .4, .5 };
-	double arr2[5] = { -.1,-.2,-.3,-.4,-.5 };
-	double arr3[5] = { -1, 2, -3, -4, -5 };
-	double arr4[5] = { 5, 4, -3, 2, 1 };
-	double arr5[7] = { 10,50,40,20,50,40,30 };
-	double arr6[3] = { 50,20,50 };
-	double arr7[3] = { 50,30,20 };
-
-
-	if (anyTrue(arr3, 5))
-		cout << "True" << endl;
-	else
-		cout << "False" << endl;
-		
-	cout << "countTrue: " << countTrue(arr3, 5) << endl;
-	cout << "firstTrue: " << firstTrue(arr3, 5) << endl;
-	cout << "positionOfMin: " << positionOfMin(arr4, 5) << endl;
-
-	if (includes(arr5, 7, arr6, 3))
-		cout << "True" << endl;
-	else
-		cout << "False" << endl;
-}
-
-///////////////////////////////////////////////////
+bool somePredicate(double x);	//declaration of somePredicate
 
 // Return true if the somePredicate function returns true for at
 // least one of the array elements, false otherwise.

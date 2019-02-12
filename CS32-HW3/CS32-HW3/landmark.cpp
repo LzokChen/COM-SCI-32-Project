@@ -3,7 +3,8 @@
 #include <string>
 using namespace std;
 
-//Your declarations and implementations would go here
+//////////////////////////////////////////////////////////////
+////////////////declarations and implementations//////////////
 
 //Base class Landmark 
 class Landmark 
@@ -21,7 +22,7 @@ public:
 		return "yellow";	
 	}
 
-	 virtual string icon() const = 0 ;
+	 virtual string icon() const = 0;
 
 	 virtual ~Landmark() {};
 
@@ -46,12 +47,12 @@ public:
 
 	virtual ~Hotel()
 	{
-		cout << "Destroying the hotel " << name() << endl;
+		cout << "Destroying the hotel " << name() << "." << endl;
 	}
 };
 
 
-//derived class Restaurant
+//Derived class Restaurant
 class Restaurant : public Landmark
 {
 public:
@@ -67,14 +68,14 @@ public:
 
 	virtual ~Restaurant()
 	{
-		cout << "Destroying the restaurant " << name() << endl;
+		cout << "Destroying the restaurant " << name() << "." << endl;
 	}
 
 private:
 	int m_capacity;
 };
 
-//derived class Hospital
+//Derived class Hospital
 class Hospital : public Landmark
 {
 public:
@@ -92,7 +93,7 @@ public:
 
 	virtual ~Hospital()
 	{
-		cout << "Destroying the hospital " << name() << endl;
+		cout << "Destroying the hospital " << name() << "." << endl;
 	}
 };
 
