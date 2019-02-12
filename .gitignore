@@ -1,4 +1,3 @@
-
 #proj 1
 CS32-Proj1/x64/
 CS32-Proj1/CS32-Proj1/x64/
@@ -28,6 +27,12 @@ CS32-HW3/x64/
 CS32-HW3/CS32-HW3/x64/
 CS32-HW3/Debug/
 CS32-HW3/CS32-HW3/Debug/
+
+# Visual Studio
+*.sln
+*.vcxproj
+*.vcxproj.filters
+*.vexproj.user
 
 # Visual Studio 2015/2017 cache/options directory
 .vs/
