@@ -2,7 +2,10 @@
 #define STUDENTWORLD_H_
 
 #include "GameWorld.h"
+#include "Actor.h"
 #include <string>
+#include <list>
+using namespace std;
 
 // Students:  Add code to this file, StudentWorld.cpp, Actor.h, and Actor.cpp
 
@@ -13,8 +16,15 @@ public:
     virtual int init();
     virtual int move();
     virtual void cleanUp();
-
+	bool accessible(double x, double Y);	//check if (X,Y) is accessible; 
+											//Non-accessible: (X,Y) is occupied by wall's,
+											//citizen's, zombie's or Penelope's bounding box
+	~StudentWorld();
 private:
+	list<Actor*> ActorList;
+	Actor* Player;
+	int numCitizen;
+	
 };
 
 #endif // STUDENTWORLD_H_
