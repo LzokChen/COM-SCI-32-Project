@@ -19,6 +19,13 @@ public:
 	bool accessible(double x, double Y);	//check if (X,Y) is accessible; 
 											//Non-accessible: (X,Y) is occupied by wall's,
 											//citizen's, zombie's or Penelope's bounding box
+
+	bool overlap(const Actor &A, const Actor &B) const;
+
+	list<Actor*>& GetList();
+	Actor* getPlayer() const;
+	int getNumCitizen() const;
+	void changeNumCitizen(int k);
 	~StudentWorld();
 private:
 	list<Actor*> ActorList;

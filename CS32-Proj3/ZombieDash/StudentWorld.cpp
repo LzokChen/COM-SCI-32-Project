@@ -5,6 +5,7 @@
 #include <string>
 #include <sstream>
 #include <iomanip>
+#include<math.h>
 using namespace std;
 
 GameWorld* createStudentWorld(string assetPath)
@@ -49,7 +50,7 @@ int StudentWorld::init()
 				break;
 
 			case Level::exit:
-				//
+				ActorList.push_back(new Exit(x, y, this));
 				break;
 
 			case Level::player:
@@ -65,7 +66,7 @@ int StudentWorld::init()
 				break;
 			
 			case Level::citizen:
-				//
+				ActorList.push_back(new Citizen(x, y, this));
 				break;
 
 			case Level::wall:
@@ -100,10 +101,23 @@ int StudentWorld::move()
     //decLives();
     //return GWSTATUS_PLAYER_DIED;
 
-	if (!Player->doSomething())
+	Player->doSomething();
+	if (Player->doSomething() == -1)	//if player is dead
 	{
 		playSound(SOUND_PLAYER_DIE);
 		return GWSTATUS_PLAYER_DIED;
+	}
+
+	for (list<Actor*>::iterator lt = ActorList.begin(); lt != ActorList.end(); lt++)
+	{
+		int result = (*lt)->doSomething();
+		switch (result)
+		{
+		case 1:
+			cout << "2"<<endl;
+			return GWSTATUS_FINISHED_LEVEL;
+		}
+
 	}
 
 	return GWSTATUS_CONTINUE_GAME;
@@ -113,8 +127,12 @@ void StudentWorld::cleanUp()
 {
 	numCitizen = 0;
 	delete Player;
-	for (list<Actor*>::iterator lt = ActorList.begin(); lt != ActorList.end(); lt++)
-		delete *lt;
+	for (list<Actor*>::iterator lt = ActorList.begin(); lt != ActorList.end();)
+	{
+		delete (*lt);
+		(ActorList).erase(lt++);
+	}
+
 }
 
 bool StudentWorld::accessible(double X, double Y)
@@ -149,7 +167,39 @@ bool StudentWorld::accessible(double X, double Y)
 
 }
 
+bool StudentWorld::overlap(const Actor &A, const Actor &B) const
+{
+	double dx = pow((A.getX()- B.getX()), 2);
+	double dY = pow((A.getY()- B.getY()), 2);
+
+	if ((dx + dY) <= 100)
+		return true;
+	else return false;
+
+}
+
+list<Actor*>&  StudentWorld::GetList()
+{
+	return ActorList;
+}
+
+Actor * StudentWorld::getPlayer() const
+{
+	return Player;
+}
+
+int StudentWorld::getNumCitizen() const
+{
+	return numCitizen;
+}
+
+void StudentWorld::changeNumCitizen(int k)
+{
+	numCitizen += k;
+}
+
 StudentWorld::~StudentWorld()
 {
 	cleanUp();
 }
+
