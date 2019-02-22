@@ -16,9 +16,7 @@ GameWorld* createStudentWorld(string assetPath)
 // Students:  Add code to this file, StudentWorld.h, Actor.h and Actor.cpp
 
 StudentWorld::StudentWorld(string assetPath)
-: GameWorld(assetPath), numCitizen(0), Player(nullptr)
-{
-}
+: GameWorld(assetPath), numCitizen(0), Player(nullptr), gameWon(false){}
 
 int StudentWorld::init()
 {
@@ -28,15 +26,25 @@ int StudentWorld::init()
 	oss << "level" << setw(2) << this->getLevel() << ".txt";
 
 	Level lev(assetPath());
-	string levelFile = oss.str();
-	Level::LoadResult result = lev.loadLevel(levelFile);
-	if (result == Level::load_fail_file_not_found)
-		cerr << "Cannot find level01.txt data file" << endl;
+	string LevelFile = oss.str();
+	Level::LoadResult result = lev.loadLevel(LevelFile);
+
+	//if the game just pass level (the next level is 100) or we cannot find the level file
+	if (this->getLevel() == 100 || result == Level::load_fail_file_not_found)
+	{
+		cerr << "Cannot find "<< LevelFile << " data file" << endl;
+		gameWon = true;
+		return GWSTATUS_PLAYER_WON;
+	}
+	//the level file is not in the proper format
 	else if (result == Level::load_fail_bad_format)
+	{
 		cerr << "Your level was improperly formatted" << endl;
+		return GWSTATUS_LEVEL_ERROR;
+	}
 	else if (result == Level::load_success)
 	{
-		cerr << "Successfully loaded "<< levelFile<< endl;
+		cerr << "Successfully loaded "<< LevelFile << endl;
 	}
 
 	for (int x = 0; x < LEVEL_WIDTH; x++)
@@ -74,19 +82,19 @@ int StudentWorld::init()
 				break;
 
 			case Level::pit:
-				//
+                ActorList.push_back(new Pit(x, y, this));
 				break;
 
 			case Level::vaccine_goodie:
-				//
+				ActorList.push_back(new Vaccine_Goodie(x, y, this));
 				break;
 
 			case Level::gas_can_goodie:
-				//
+				ActorList.push_back(new GasCan_Goodie(x, y, this));
 				break;
 
 			case Level::landmine_goodie:
-				//
+				ActorList.push_back(new Landmine_Goodie(x, y, this));
 				break;
 			}
 		}
@@ -96,29 +104,64 @@ int StudentWorld::init()
 
 int StudentWorld::move()
 {
-    // This code is here merely to allow the game to build, run, and terminate after you hit enter.
-    // Notice that the return value GWSTATUS_PLAYER_DIED will cause our framework to end the current level.
-    //decLives();
-    //return GWSTATUS_PLAYER_DIED;
-
+	//check if Player is alive 
 	Player->doSomething();
-	if (Player->doSomething() == -1)	//if player is dead
+	if (Player->doSomething() == -1)	//if player is dead (by player's doSomething, die due to infection)
 	{
+		decLives();
 		playSound(SOUND_PLAYER_DIE);
 		return GWSTATUS_PLAYER_DIED;
 	}
 
+	//doSomething for alive actor
 	for (list<Actor*>::iterator lt = ActorList.begin(); lt != ActorList.end(); lt++)
 	{
-		int result = (*lt)->doSomething();
-		switch (result)
+		if ((*lt)->getExistance())
 		{
-		case 1:
-			cout << "2"<<endl;
-			return GWSTATUS_FINISHED_LEVEL;
+			int result = (*lt)->doSomething();
+			switch (result)
+			{
+			case 1:
+				return GWSTATUS_FINISHED_LEVEL;
+				break;
+			case -1:
+				decLives();
+				playSound(SOUND_PLAYER_DIE);
+				return GWSTATUS_PLAYER_DIED; 
+			}
 		}
-
 	}
+
+	//delete died actor
+	for (list<Actor*>::iterator lt = ActorList.begin(); lt != ActorList.end(); lt++)
+	{
+		if (!(*lt)->getExistance())
+		{
+			if (*lt != nullptr)
+			{
+				delete (*lt);
+				*lt = nullptr;
+				(ActorList).erase(lt++);
+			}
+		}
+	}
+
+	//update GameStatText;
+	ostringstream GameStat;
+	//Score: 004500 Level: 27 Lives: 3 Vaccines: 2 Flames: 16 Mines: 1 Infected: 0
+
+	GameStat << "Score: " << getScore() << "  ";
+	GameStat << "Level: "  << getLevel() << "  ";
+	GameStat << "Lives: "  << getLives() << "  ";
+	GameStat << "Vaccines: "  << Player->getNmVaccine() << "  ";
+	GameStat << "Flames: "  << Player->getNumFCharge() << "  ";
+	GameStat << "Mines: "  << Player->getNumLandmine() << "  ";
+	GameStat << "Infected: "  << Player->getInfectionCount() << "  ";
+
+	setGameStatText(GameStat.str());
+
+
+
 
 	return GWSTATUS_CONTINUE_GAME;
 }
@@ -126,12 +169,23 @@ int StudentWorld::move()
 void StudentWorld::cleanUp()
 {
 	numCitizen = 0;
-	delete Player;
 	for (list<Actor*>::iterator lt = ActorList.begin(); lt != ActorList.end();)
 	{
-		delete (*lt);
-		(ActorList).erase(lt++);
+		if (*lt != nullptr)
+		{
+			delete (*lt);
+			*lt = nullptr;
+			(ActorList).erase(lt++);
+		}
+		
 	}
+	if (Player != nullptr)
+	{
+		delete Player;
+		Player = nullptr;
+	}
+
+
 
 }
 
@@ -145,7 +199,7 @@ bool StudentWorld::accessible(double X, double Y)
 	
 	for (list<Actor*>::iterator lt = ActorList.begin(); lt != ActorList.end(); lt++)
 	{
-		if ((*lt)->isBlock())	//if the actor is a "blocklike" object
+		if ((*lt)->getExistance() && (*lt)->isBlock())	//if the actor is alive and is a "blocklike" object
 		{
 			//determinate the boundaries of the bounding box of the "blocklike" actor
 			double upperBound	= (*lt)->getY() + SPRITE_HEIGHT - 1;
@@ -178,12 +232,43 @@ bool StudentWorld::overlap(const Actor &A, const Actor &B) const
 
 }
 
+int StudentWorld::damage(Actor *source)
+{
+    for (list<Actor*>::iterator lt = ActorList.begin(); lt != ActorList.end(); lt++)
+    {
+        if ((*lt)->getExistance() && (*lt)->damageable() && overlap(*source, *(*lt))) 
+		{
+			//if lt is an alive damageable actor and overlaps with damage source
+            if((*lt)->getType() == IID_CITIZEN)
+            {
+                increaseScore(-1000);    //lose 1000 pt
+                changeNumCitizen(-1);    //deduct number of citizen by 1;
+                playSound(SOUND_CITIZEN_DIE);
+            }
+            if((*lt)->getType() == IID_ZOMBIE)
+            {
+                increaseScore(1000);    //increase 1000 pt
+                playSound(SOUND_ZOMBIE_DIE);
+            }
+            (*lt)->changeExistance();        //changeExistance to dead
+        }
+    }
+    
+    if (overlap(*source, *getPlayer())) //player got damage
+    {
+        return -1; //return -1: player dead
+    }
+    
+    
+    return 0; // defult
+}
+
 list<Actor*>&  StudentWorld::GetList()
 {
 	return ActorList;
 }
 
-Actor * StudentWorld::getPlayer() const
+Penelope * StudentWorld::getPlayer() const
 {
 	return Player;
 }

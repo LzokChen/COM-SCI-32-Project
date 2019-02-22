@@ -12,6 +12,18 @@ using namespace std;
 class StudentWorld : public GameWorld
 {
 public:
+	//from GameWorld
+	//int getLevel() const;
+	//int getLives() const;
+	//void decLives();
+	//void incLives();
+	//int getScore() const;
+	//void increaseScore(int howMuch);
+	//void setGameStatText(string text);
+	//string assetPath() const;
+	//bool getKey(int& value);
+	//void playSound(int soundID);
+
     StudentWorld(std::string assetPath);
     virtual int init();
     virtual int move();
@@ -21,16 +33,19 @@ public:
 											//citizen's, zombie's or Penelope's bounding box
 
 	bool overlap(const Actor &A, const Actor &B) const;
+    int damage(Actor* source);
 
 	list<Actor*>& GetList();
-	Actor* getPlayer() const;
+	Penelope* getPlayer() const;
 	int getNumCitizen() const;
 	void changeNumCitizen(int k);
 	~StudentWorld();
 private:
 	list<Actor*> ActorList;
-	Actor* Player;
+	Penelope* Player;
 	int numCitizen;
+
+	bool gameWon;
 	
 };
 

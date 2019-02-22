@@ -12,8 +12,8 @@ class Actor : public GraphObject
 {
 public:
 	//constructor
-	Actor(int imageID, double startX, double StartY, int StartDirection, int depth, StudentWorld *sw,
-		bool is_Block, bool flammable, bool  infectable);
+	Actor(int imageID, int Type, double StartX, double StartY, int StartDirection, int depth, StudentWorld *sw,
+		bool is_Block, bool damageable, bool  infectable);
 
 	//from base class GraphObject
 	//double getX() const; // in pixels (0-255)
@@ -25,12 +25,15 @@ public:
 	
 	bool getExistance() const;
 	bool isBlock() const;
-	bool flammable() const;
+	bool damageable() const;
 	bool infectable() const;
+
+	bool getInfectionStatus() const;
+	void setInfectionStatus(bool k);
 
 	void changeExistance();
 	StudentWorld * getSW() const;
-	virtual string getType() const = 0;
+	virtual int getType() const;
 	virtual int doSomething() = 0;
 	//return  0: defult
 	//return -1: Actor "Died"
@@ -40,51 +43,67 @@ public:
 
 private:
 
+	
 	bool m_existence;
 	bool m_isBlock;
-	bool m_flammable;
+	bool m_damageable;
 	bool m_infectable;
+	bool m_infectionStatus;
+	
+    int m_type;
 	StudentWorld * SW;
 };
 
 class Wall : public Actor
 {
 public:
-	Wall(double startX, double startY, StudentWorld *sw);
+	Wall(double StartX, double startY, StudentWorld *sw);
 	virtual int doSomething();
-	virtual string getType() const;
 };
 
 class Exit : public Actor
 {
 public:
-	Exit(double startX, double startY, StudentWorld *sw);
+	Exit(double StartX, double startY, StudentWorld *sw);
 	virtual int doSomething();
-	virtual string getType() const;
 };
+
+class Pit : public Actor
+{
+public:
+    Pit(double StartX, double startY, StudentWorld*sw);
+    virtual int doSomething();
+};
+
 
 class Human : public Actor
 {
 public:
-	Human(double startX, double StartY, int imageID, StudentWorld *sw);
-	bool getInfectionStatus() const;
-	int getInfectionCount() const;
-	void changeInfectionStatus();
-	void increaseInfectionCount(int i);
+	Human(double StartX, double StartY, int imageID, int Type, StudentWorld *sw);
 	virtual int doSomething();
+	int getInfectionCount() const;
 	virtual ~Human();
+	
 
 private:
 	int infectionCount;
-	bool infectionStatus;
+	
 };
 
 class Penelope : public Human
 {
 public:
-	Penelope(double startX, double StartY, StudentWorld *sw);
+	Penelope(double StartX, double StartY, StudentWorld *sw);
 	virtual int doSomething();
-	virtual string getType() const;
+
+	int getNumLandmine() const;
+	int getNumFCharge() const;
+	int getNmVaccine() const;
+
+	void incNumLandmine(int i);
+	void incNumFCharge(int i);
+	void incNumVaccine(int i);
+	
 
 private:
 	int numLandmine, numFCharge, numVaccine;
@@ -93,8 +112,60 @@ private:
 class Citizen : public Human
 {
 public:
-	Citizen(double startX, double StartY, StudentWorld *sw);
+	Citizen(double StartX, double StartY, StudentWorld *sw);
 	virtual int doSomething();
-	virtual string getType() const;
+};
+
+class Projectile: public Actor
+{
+public:
+    Projectile(double StartX, double StartY, int imageID, int Type, StudentWorld *sw);
+    virtual int doSomething();
+	virtual ~Projectile();
+private:
+    int tickcount;
+};
+
+class Flame : public Projectile
+{
+public:
+    Flame(double StartX, double StartY, StudentWorld *sw);
+    virtual int doSomething();
+};
+
+class Vomit : public Projectile
+{
+public:
+    Vomit(double StartX, double StartY, StudentWorld *sw);
+    virtual int doSomething();
+};
+
+class Goodie : public Actor
+{
+public:
+	Goodie(double StartX, double StartY, int imageID, int Type, StudentWorld *sw);
+	virtual int doSomething();
+	virtual ~Goodie();
+};
+
+class Vaccine_Goodie :public Goodie
+{
+public:
+	Vaccine_Goodie(double StartX, double StartY, StudentWorld *sw);
+	virtual int doSomething();
+};
+
+class GasCan_Goodie :public Goodie
+{
+public:
+	GasCan_Goodie(double StartX, double StartY, StudentWorld *sw);
+	virtual int doSomething();
+};
+
+class Landmine_Goodie :public Goodie
+{
+public:
+	Landmine_Goodie(double StartX, double StartY, StudentWorld *sw);
+	virtual int doSomething();
 };
 #endif // ACTOR_H_
