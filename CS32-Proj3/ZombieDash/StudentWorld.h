@@ -28,14 +28,18 @@ public:
     virtual int init();
     virtual int move();
     virtual void cleanUp();
-	bool accessible(double x, double Y);	//check if (X,Y) is accessible; 
+	bool accessible(double x, double Y) const;	//check if (X,Y) is accessible; 
 											//Non-accessible: (X,Y) is occupied by wall's,
 											//citizen's, zombie's or Penelope's bounding box
 
-	bool overlap(const Actor &A, const Actor &B) const;
+	bool overlap(const double Ax, const double Ay, const double Bx, const double By) const;
+	bool ActorOverlap(const Actor &A, const Actor &B) const;
+
+	bool flameable(const double X, const double Y) const;
+
     int damage(Actor* source);
 
-	list<Actor*>& GetList();
+	list<Actor*>& getList();
 	Penelope* getPlayer() const;
 	int getNumCitizen() const;
 	void changeNumCitizen(int k);

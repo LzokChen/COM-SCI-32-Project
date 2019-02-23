@@ -6,15 +6,16 @@ using namespace std;
 
 // Students:  Add code to this file, Actor.h, StudentWorld.h, and StudentWorld.cpp
 
+////////////////////////////////////////
 ///////   Actor  //////
 //constructor - Actor
-Actor::Actor(int imageID, int Type, double StartX, double StartY, int StartDirection,
-	int depth, StudentWorld *sw, bool is_Block, bool damageable, bool  infectable)
+Actor::Actor(int imageID, double StartX, double StartY, int StartDirection,
+	int depth, StudentWorld *sw, bool is_Block, bool block_Flame, bool damageable, bool  infectable)
 	: GraphObject(imageID, StartX, StartY, StartDirection, depth)
 {
-    m_type = Type;
 	m_existence = true;
 	m_isBlock = is_Block;
+	m_blockFlame = block_Flame;
 	m_damageable = damageable;
 	m_infectable = infectable;
 	m_infectionStatus = false;
@@ -29,6 +30,11 @@ bool Actor::getExistance() const
 bool Actor::isBlock() const
 {
 	return m_isBlock;
+}
+
+bool Actor::blockFlame() const
+{
+	return m_blockFlame;
 }
 
 bool Actor::damageable() const
@@ -53,10 +59,15 @@ void Actor::setInfectionStatus(bool k)
 
 }
 
-
-void Actor::changeExistance()
+void Actor::getDamage()
 {
-	m_existence = !m_existence;
+	if(damageable())
+		m_existence = false;        //setExistance to dead
+}
+
+void Actor::setExistance(bool existance)
+{
+	m_existence = existance;
 }
 
 StudentWorld * Actor::getSW() const
@@ -64,47 +75,63 @@ StudentWorld * Actor::getSW() const
 	return SW;
 }
 
-int Actor::getType() const
-{
-    return m_type;
-}
-
 Actor:: ~Actor() {};
 ///////////////////////
 ////////////////////////////////////////
 
+////////////////////////////////////////
+////// Inanimate //////
+//constructor - Inanimate
+Inanimate::Inanimate(int imageID, double StartX, double StartY, int depth, StudentWorld *sw,bool is_Block, bool block_Flame, bool damageable)
+	:Actor::Actor(imageID, SPRITE_WIDTH * StartX, SPRITE_HEIGHT * StartY, right, depth, sw, is_Block, block_Flame, damageable, false) {}
+
+bool Inanimate::isHuman() const
+{
+	return false;
+}
+
+bool Inanimate::isZombie() const
+{
+	return false;
+}
+
+Inanimate::~Inanimate()
+{
+}
+
 ///////   Wall   //////
 //constructor - Wall
 Wall::Wall(double StartX, double StartY, StudentWorld *sw)
-	:Actor(IID_WALL, IID_WALL, SPRITE_WIDTH * StartX, SPRITE_HEIGHT * StartY, right, 0, sw, true, false, false) {}
+	:Inanimate(IID_WALL, StartX, StartY, 0, sw, true, true, false) {}
 
 int Wall::doSomething() { return 0; } //do nothing, return 0: defult
+
 
 ///////////////////////
 ////////////////////////////////////////
 
 ///////   Exit   //////
 Exit::Exit(double StartX, double StartY, StudentWorld *sw)
-	:Actor(IID_EXIT, IID_EXIT, SPRITE_WIDTH * StartX, SPRITE_HEIGHT * StartY, right, 1, sw, false, false, false) {}
+	:Inanimate(IID_EXIT, StartX, StartY, 1, sw, false, false, false){}
 
 int Exit::doSomething() {
 
-	for (list<Actor*>::iterator lt = getSW()->GetList().begin(); lt != getSW()->GetList().end(); lt++)
+	for (list<Actor*>::iterator lt = getSW()->getList().begin(); lt != getSW()->getList().end(); lt++)
 	{
-		if ((*lt)->getExistance() && (*lt)->getType() == IID_CITIZEN)	
-			//if the actor is an alive "Citizen"
+		if ((*lt)->getExistance() && (*lt)-> isHuman())	
+			//if the actor is an alive "Human" - which is Citizen
 		{
-			if (getSW()->overlap(*this, *(*lt)))	//if "Citizen" and "Exit" are overlap
+			if (getSW()->ActorOverlap(*this, *(*lt)))	//if "Citizen" and "Exit" are ActorOverlap
 			{
 				getSW()->increaseScore(500);	//add 500 pt
-				(*lt)->changeExistance();		//changeExistance to dead
+				(*lt)->setExistance(false);		//setExistance to dead
 				getSW()->changeNumCitizen(-1);	//deduct number of citizen by 1;
 				getSW()->playSound(SOUND_CITIZEN_SAVED); //play the sound effect
 			}
 		}
 	}
 
-	if (getSW()->overlap(*this, *(getSW()->getPlayer())) && getSW()->getNumCitizen() == 0)
+	if (getSW()->ActorOverlap(*this, *(getSW()->getPlayer())) && getSW()->getNumCitizen() == 0)
 	{
 		return 1; //return 1: next level
 	}
@@ -116,7 +143,7 @@ int Exit::doSomething() {
 ///////   Pit    //////
 //constructor - Pit
 Pit::Pit(double StartX, double StartY, StudentWorld *sw)
-:Actor(IID_PIT, IID_PIT, SPRITE_WIDTH * StartX, SPRITE_HEIGHT * StartY, right, 0, sw, false, false, false) {}
+	:Inanimate(IID_PIT, StartX, StartY, 0, sw, false, false, false) {}
 
 int Pit::doSomething()
 {
@@ -132,11 +159,9 @@ int Pit::doSomething()
 
 ///////  Human   //////
 //constructor - Human
-Human::Human(double StartX, double StartY, int imageID, int Type, StudentWorld *sw)
-	:Actor(imageID, Type, SPRITE_WIDTH * StartX, SPRITE_HEIGHT * StartY, right, 0, sw, true, true, true),
+Human::Human(double StartX, double StartY, int imageID, StudentWorld *sw)
+	:Actor(imageID, SPRITE_WIDTH * StartX, SPRITE_HEIGHT * StartY, right, 0, sw, true, false, true, true),
 		infectionCount(0) {}
-
-
 
 int Human::doSomething()
 {
@@ -152,8 +177,7 @@ int Human::doSomething()
 		infectionCount += 1;
 		if (infectionCount >= 500) //Hunman's infection level reached max	
 		{
-			changeExistance();
-			return -1;		//Human is dead, return -1	
+			return 1;		//Human is dead(fully infected), return 1	
 		}
 	}
 	else infectionCount = 0;
@@ -166,6 +190,16 @@ int Human::getInfectionCount() const
 	return infectionCount;
 }
 
+bool Human::isHuman() const
+{
+	return true;
+}
+
+bool Human::isZombie() const
+{
+	return false;
+}
+
 Human::~Human()
 {
 }
@@ -175,11 +209,11 @@ Human::~Human()
 ////// Penelope  //////
 //constructor - Penelope
 Penelope::Penelope(double StartX, double StartY, StudentWorld *sw)
-	:Human(StartX, StartY, IID_PLAYER, IID_PLAYER, sw), numLandmine(0), numFCharge(0), numVaccine(0){}
+	:Human(StartX, StartY, IID_PLAYER, sw), numLandmine(110), numFCharge(110), numVaccine(110){}
 
 int Penelope::doSomething()
 {
-	if (Human::doSomething() == -1) return -1;	//Human is dead => Penelope is dead, return -1	
+	if (Human::doSomething() != 0)	return -1;	//Human is dead => Penelope is dead, return -1	
 	
 	//check key pressed
 	int key;
@@ -188,10 +222,18 @@ int Penelope::doSomething()
 		switch (key)
 		{
 		case KEY_PRESS_SPACE:
-
+			if (numFCharge > 0)
+			{
+				fire();
+				incNumFCharge(-1);
+			}
 			break;
 		case KEY_PRESS_TAB:
-
+            if (numLandmine > 0)
+            {
+                getSW()->getList().push_back(new Landmine(getX(), getY(), getSW()));
+                incNumLandmine(-1);
+            }
 			break;
 		case KEY_PRESS_ENTER:
 			if (numVaccine > 0)
@@ -203,22 +245,22 @@ int Penelope::doSomething()
 		case KEY_PRESS_LEFT:
 			setDirection(left);
 			if(getSW()->accessible(getX() - 4, getY()))
-			moveTo(getX() - 4, getY());
+				moveTo(getX() - 4, getY());
 			break;
 		case KEY_PRESS_RIGHT:
 			setDirection(right);
 			if (getSW()->accessible(getX() + 4, getY()))
-			moveTo(getX() + 4, getY());
+				moveTo(getX() + 4, getY());
 			break;
 		case KEY_PRESS_UP:
 			setDirection(up);
 			if (getSW()->accessible(getX(), getY() + 4))
-			moveTo(getX(), getY() + 4);
+				moveTo(getX(), getY() + 4);
 			break;
 		case KEY_PRESS_DOWN:
 			setDirection(down);
 			if (getSW()->accessible(getX(), getY() - 4))
-			moveTo(getX(), getY() - 4);
+				moveTo(getX(), getY() - 4);
 			break;
 		default:
 			break;
@@ -257,32 +299,84 @@ void Penelope::incNumVaccine(int i)
 	numVaccine += i;
 }
 
+
+
+void Penelope::fire() const
+{
+	getSW()->playSound(SOUND_PLAYER_FIRE);
+	
+	for (int i = 1; i <= 3; i++)
+	{
+		switch (getDirection())
+		{
+		case up:
+			if(getSW()->flameable(getX(), getY() + i * SPRITE_HEIGHT))
+				getSW()->getList().push_back(new Flame(getX() / SPRITE_WIDTH, getY() / SPRITE_HEIGHT + i, getSW()));
+			else return;
+			break;
+
+		case down:
+			if (getSW()->flameable(getX(), getY() - i * SPRITE_HEIGHT))
+				getSW()->getList().push_back(new Flame(getX() / SPRITE_WIDTH, getY() / SPRITE_HEIGHT - i, getSW()));
+			else return;
+			break;
+
+		case left:
+			if (getSW()->flameable(getX() - i * SPRITE_WIDTH, getY()))
+				getSW()->getList().push_back(new Flame(getX() / SPRITE_WIDTH - i, getY() / SPRITE_HEIGHT, getSW()));
+			else return;
+			break;
+
+		case right:
+			if (getSW()->flameable(getX() + (i * SPRITE_WIDTH), getY()))
+				getSW()->getList().push_back(new Flame(getX() / SPRITE_WIDTH + i, getY() / SPRITE_HEIGHT, getSW()));
+			else return;
+			break;
+		}
+	}
+
+		
+
+}
+
 ////// Citizen  //////
 //constructor - Citizen
 Citizen::Citizen(double StartX, double StartY, StudentWorld *sw)
-	:Human(StartX, StartY, IID_CITIZEN, IID_CITIZEN, sw){}
+	:Human(StartX, StartY, IID_CITIZEN, sw){}
 
 int Citizen::doSomething()
 {
-	
 	return 0;		//return 0: defult
 }
+
+void Citizen::getDamage()
+{
+	getSW()->increaseScore(-1000);			//lose 1000 pt
+	getSW()->changeNumCitizen(-1);			//deduct number of citizen by 1;
+	getSW()->playSound(SOUND_CITIZEN_DIE);	//sound effect
+	Actor::getDamage();
+}
+
 ///////////////////////
 ////////////////////////////////////////
 
 ////// Projectile /////
 //constructor - Projectile
-Projectile::Projectile(double StartX, double StartY, int imageID, int Type, StudentWorld *sw)
-    :Actor(imageID, Type, SPRITE_WIDTH * StartX, SPRITE_HEIGHT * StartY, right, 0, sw, false, false, false),tickcount(0) {}
+Projectile::Projectile(double StartX, double StartY, int imageID, StudentWorld *sw)
+	:Inanimate(imageID, StartX, StartY, 0, sw, false, false, false), tickcount(2) {}
 
 int Projectile::doSomething()
 {
     if(!getExistance()) return -1;  //projectile is "dead"
     
-    if(tickcount>2)
-        changeExistance();
-    else tickcount++;
-    
+	if (tickcount > 0)
+	{
+		
+		tickcount--;
+		return 0;
+	}
+	else
+		setExistance(false);
     return 0;   //return 0: defult
 }
 Projectile::~Projectile()
@@ -293,7 +387,9 @@ Projectile::~Projectile()
 /////// Flame /////////
 //constructor - Flame
 Flame::Flame(double StartX, double StartY, StudentWorld *sw)
-:Projectile(StartX, StartY, IID_FLAME, IID_FLAME, sw){}
+	:Projectile(StartX, StartY, IID_FLAME, sw) {
+	//cerr << "flame at: (" << getX() << ", " << getY() <<")"<< endl;
+}
 
 int Flame::doSomething()
 {
@@ -311,15 +407,15 @@ int Flame::doSomething()
 /////// Vomit /////////
 //constructor - Vomit
 Vomit::Vomit(double StartX, double StartY, StudentWorld *sw)
-:Projectile(StartX, StartY, IID_VOMIT, IID_VOMIT, sw){}
+:Projectile(StartX, StartY, IID_VOMIT, sw){}
 
 int Vomit::doSomething()
 {
     if(Projectile::doSomething()== 0)
     {
-        for (list<Actor*>::iterator lt = getSW()->GetList().begin(); lt != getSW()->GetList().end(); lt++)
+        for (list<Actor*>::iterator lt = getSW()->getList().begin(); lt != getSW()->getList().end(); lt++)
         {
-            if ((*lt)->getExistance() && (*lt)->infectable() && getSW()->overlap(*this, *(*lt)))    
+            if ((*lt)->getExistance() && (*lt)->infectable() && getSW()->ActorOverlap(*this, *(*lt)))    
 				//if lt is an alive infectable actor and overlaps with Vomit
             {	
 				if (!((*lt)->getInfectionStatus()))
@@ -330,7 +426,7 @@ int Vomit::doSomething()
             }
         }
 
-		if (getSW()->overlap(*this, *(getSW()->getPlayer())))//player got infect
+		if (getSW()->ActorOverlap(*this, *(getSW()->getPlayer())))//player got infect
 		{
 			if (!(getSW()->getPlayer()->getInfectionStatus()))	//if player is not infected
 				getSW()->getPlayer()->setInfectionStatus(true);
@@ -343,16 +439,16 @@ int Vomit::doSomething()
 
 /////    Goodie   /////
 //constructor - Goodie
-Goodie::Goodie(double StartX, double StartY, int imageID, int Type, StudentWorld *sw)
-	:Actor(imageID, Type, SPRITE_WIDTH * StartX, SPRITE_HEIGHT * StartY, right, 1, sw, false, true, false) {}
+Goodie::Goodie(double StartX, double StartY, int imageID, StudentWorld *sw)
+	:Inanimate(imageID, StartX, StartY, 1, sw, false, false, true){}
 
 int Goodie::doSomething()
 {
 	if (!getExistance()) return -1;  //Gooide is "dead"
 		
-	if (getSW()->overlap(*this, *(getSW()->getPlayer())))	//player pickup the Goodie
+	if (getSW()->ActorOverlap(*this, *(getSW()->getPlayer())))	//player pickup the Goodie
 	{
-		changeExistance();						//set to "dead"
+		setExistance(false);						//set to "dead"
 		getSW()->increaseScore(50);				//earn 50 pt
 		getSW()->playSound(SOUND_GOT_GOODIE);
 		return 1;	//return 1: pickup Goodie
@@ -368,7 +464,7 @@ Goodie::~Goodie()
 //  Vaccine_Goodie   //
 //constructor - Vaccine_Goodie
 Vaccine_Goodie::Vaccine_Goodie(double StartX, double StartY, StudentWorld *sw)
-	:Goodie(StartX, StartY, IID_VACCINE_GOODIE, IID_VACCINE_GOODIE, sw) {}
+	:Goodie(StartX, StartY,  IID_VACCINE_GOODIE, sw) {}
 
 int Vaccine_Goodie::doSomething()
 {
@@ -383,7 +479,7 @@ int Vaccine_Goodie::doSomething()
 //// GasCan_Goodie ////
 //constructor - GasCan_Goodi
 GasCan_Goodie::GasCan_Goodie(double StartX, double StartY, StudentWorld *sw)
-	:Goodie(StartX, StartY, IID_GAS_CAN_GOODIE, IID_GAS_CAN_GOODIE, sw) {}
+	:Goodie(StartX, StartY, IID_GAS_CAN_GOODIE, sw) {}
 
 int GasCan_Goodie::doSomething()
 {
@@ -398,7 +494,7 @@ int GasCan_Goodie::doSomething()
 //  Landmine_Goodie  //
 //constructor - Landmine_Goodie
 Landmine_Goodie::Landmine_Goodie(double StartX, double StartY, StudentWorld *sw)
-	:Goodie(StartX, StartY, IID_LANDMINE_GOODIE, IID_LANDMINE_GOODIE, sw) {}
+	:Goodie(StartX, StartY, IID_LANDMINE_GOODIE, sw) {}
 
 int Landmine_Goodie::doSomething()
 {
@@ -407,5 +503,75 @@ int Landmine_Goodie::doSomething()
 		getSW()->getPlayer()->incNumLandmine(2);	//num of Landmine inc by 2
 	}
 	return 0;   //return 0: defult
+}
+///////////////////////
+
+////////////////////////////////////////
+
+/////    Landmine   /////
+//constructor - Landmine
+Landmine::Landmine(double StartX, double StartY, StudentWorld *sw)
+	:Inanimate(IID_LANDMINE, StartX / SPRITE_WIDTH, StartY / SPRITE_HEIGHT, 1, sw, false, false, true), tickcount(60), activeStatus(false) 
+{
+	cerr << "place a landmine at (" << getX() << ", " << getY() << ")." << endl;
+}
+
+int Landmine::doSomething()
+{
+    if (!getExistance()) return 0; //the Landmine is not alive, ruturn 0 by defult;
+    
+    if(activeStatus)    //active
+    {
+		for (list<Actor*>::iterator lt = getSW()->getList().begin(); lt != getSW()->getList().end(); lt++)
+		{
+			if ((*lt)->getExistance() && getSW()->ActorOverlap(*this, *(*lt)) && ((*lt)->isHuman() || (*lt)->isZombie()))
+			{
+				cerr << "trigger from dosomething" << endl;
+				trigger();              
+				//if a alive damagable overlaps with(step on) an active landmine, trigger the landmine
+			}
+		}
+
+		if (getSW()->getPlayer()->getExistance() && getSW()->ActorOverlap(*this, *getSW()->getPlayer()))
+			trigger();
+    }
+	else //not active
+	{
+		tickcount -= 1;
+		if (tickcount == 0) activeStatus = true;   //the safety tickcount is 0, the landmaine is active
+	}
+    
+    
+        
+    
+    return 0; //return 0: defult
+}
+
+void Landmine::getDamage()
+{
+	trigger();
+}
+
+void Landmine::trigger()
+{
+	if (!getExistance()) return;
+	cerr << "trigger the lanmine: (" << getX() << ", " << getY() << ")." << endl;
+    setExistance(false);							//set eixstance to "dead"
+	getSW()->playSound(SOUND_LANDMINE_EXPLODE);		//play sound effect
+	//double x = getX() / SPRITE_WIDTH;
+	//double y = getY() / SPRITE_HEIGHT;
+	
+	for (int y = -1; y <= 1; y++)
+	{
+		for (int x = -1; x <= 1; x++)
+		{
+			if (getSW()->flameable(getX() + x * SPRITE_WIDTH, getY() + y * SPRITE_HEIGHT))
+			{
+				getSW()->getList().push_back(new Flame(getX() / SPRITE_WIDTH + x, getY() / SPRITE_HEIGHT + y, getSW()));
+			}
+		}
+	}
+	getSW()->getList().push_back(new Pit(getX() / SPRITE_WIDTH, getY() / SPRITE_HEIGHT, getSW()));				//introduce a pit at (x,y)
+	
 }
 ///////////////////////

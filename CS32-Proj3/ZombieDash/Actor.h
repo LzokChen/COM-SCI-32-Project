@@ -12,8 +12,8 @@ class Actor : public GraphObject
 {
 public:
 	//constructor
-	Actor(int imageID, int Type, double StartX, double StartY, int StartDirection, int depth, StudentWorld *sw,
-		bool is_Block, bool damageable, bool  infectable);
+	Actor(int imageID, double StartX, double StartY, int StartDirection, int depth, StudentWorld *sw,
+		bool is_Block, bool block_Flame, bool damageable, bool  infectable);
 
 	//from base class GraphObject
 	//double getX() const; // in pixels (0-255)
@@ -25,15 +25,18 @@ public:
 	
 	bool getExistance() const;
 	bool isBlock() const;
+	bool blockFlame() const;
 	bool damageable() const;
 	bool infectable() const;
-
 	bool getInfectionStatus() const;
 	void setInfectionStatus(bool k);
 
-	void changeExistance();
+	virtual bool isHuman() const = 0;
+	virtual bool isZombie() const = 0;
+
+	virtual void getDamage();
+	void setExistance(bool existance);
 	StudentWorld * getSW() const;
-	virtual int getType() const;
 	virtual int doSomething() = 0;
 	//return  0: defult
 	//return -1: Actor "Died"
@@ -43,32 +46,41 @@ public:
 
 private:
 
-	
 	bool m_existence;
 	bool m_isBlock;
+	bool m_blockFlame;
 	bool m_damageable;
 	bool m_infectable;
 	bool m_infectionStatus;
 	
-    int m_type;
 	StudentWorld * SW;
 };
 
-class Wall : public Actor
+class Inanimate : public Actor
+{
+public:
+	Inanimate(int imageID, double StartX, double StartY, int depth, StudentWorld *sw,
+		bool is_Block, bool block_Flame, bool damageable);
+	virtual bool isHuman() const;
+	virtual bool isZombie() const;
+	virtual ~Inanimate();
+};
+
+class Wall : public Inanimate
 {
 public:
 	Wall(double StartX, double startY, StudentWorld *sw);
 	virtual int doSomething();
 };
 
-class Exit : public Actor
+class Exit : public Inanimate
 {
 public:
 	Exit(double StartX, double startY, StudentWorld *sw);
 	virtual int doSomething();
 };
 
-class Pit : public Actor
+class Pit : public Inanimate
 {
 public:
     Pit(double StartX, double startY, StudentWorld*sw);
@@ -79,9 +91,11 @@ public:
 class Human : public Actor
 {
 public:
-	Human(double StartX, double StartY, int imageID, int Type, StudentWorld *sw);
+	Human(double StartX, double StartY, int imageID, StudentWorld *sw);
 	virtual int doSomething();
 	int getInfectionCount() const;
+	virtual bool isHuman() const;
+	virtual bool isZombie() const;
 	virtual ~Human();
 	
 
@@ -107,6 +121,7 @@ public:
 
 private:
 	int numLandmine, numFCharge, numVaccine;
+	void fire() const;
 };
 
 class Citizen : public Human
@@ -114,12 +129,13 @@ class Citizen : public Human
 public:
 	Citizen(double StartX, double StartY, StudentWorld *sw);
 	virtual int doSomething();
+	virtual void getDamage();
 };
 
-class Projectile: public Actor
+class Projectile: public Inanimate
 {
 public:
-    Projectile(double StartX, double StartY, int imageID, int Type, StudentWorld *sw);
+    Projectile(double StartX, double StartY, int imageID, StudentWorld *sw);
     virtual int doSomething();
 	virtual ~Projectile();
 private:
@@ -140,10 +156,10 @@ public:
     virtual int doSomething();
 };
 
-class Goodie : public Actor
+class Goodie : public Inanimate
 {
 public:
-	Goodie(double StartX, double StartY, int imageID, int Type, StudentWorld *sw);
+	Goodie(double StartX, double StartY, int imageID, StudentWorld *sw);
 	virtual int doSomething();
 	virtual ~Goodie();
 };
@@ -167,5 +183,33 @@ class Landmine_Goodie :public Goodie
 public:
 	Landmine_Goodie(double StartX, double StartY, StudentWorld *sw);
 	virtual int doSomething();
+};
+
+class Landmine: public Inanimate
+{
+public:
+    Landmine(double StartX, double StartY, StudentWorld *sw);
+    virtual int doSomething();
+	virtual void getDamage();
+private:
+    int tickcount;
+    bool activeStatus;
+	void trigger();
+};
+
+class Zombie : public Actor
+{
+public:
+	Zombie(double StartX, double StartY, int imageID, StudentWorld *sw);
+	virtual int doSomething();
+	virtual bool isHuman() const;
+	virtual bool isZombie() const;
+	virtual void getDamage();
+	virtual ~Zombie();
+
+
+private:
+	int infectionCount;
+
 };
 #endif // ACTOR_H_

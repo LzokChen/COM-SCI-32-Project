@@ -122,6 +122,7 @@ int StudentWorld::move()
 			switch (result)
 			{
 			case 1:
+				playSound(SOUND_LEVEL_FINISHED);
 				return GWSTATUS_FINISHED_LEVEL;
 				break;
 			case -1:
@@ -133,7 +134,7 @@ int StudentWorld::move()
 	}
 
 	//delete died actor
-	for (list<Actor*>::iterator lt = ActorList.begin(); lt != ActorList.end(); lt++)
+	for (list<Actor*>::iterator lt = ActorList.begin(); lt != ActorList.end();)
 	{
 		if (!(*lt)->getExistance())
 		{
@@ -141,9 +142,10 @@ int StudentWorld::move()
 			{
 				delete (*lt);
 				*lt = nullptr;
-				(ActorList).erase(lt++);
 			}
+			(ActorList).erase(lt++);
 		}
+		else lt++;
 	}
 
 	//update GameStatText;
@@ -175,8 +177,8 @@ void StudentWorld::cleanUp()
 		{
 			delete (*lt);
 			*lt = nullptr;
-			(ActorList).erase(lt++);
 		}
+		(ActorList).erase(lt++);
 		
 	}
 	if (Player != nullptr)
@@ -185,19 +187,15 @@ void StudentWorld::cleanUp()
 		Player = nullptr;
 	}
 
-
-
 }
 
-bool StudentWorld::accessible(double X, double Y)
+bool StudentWorld::accessible(double X, double Y) const
 {
 	//determinate the vertexs of the bounding Box of the actor move to (X,Y)
 	double vertex[4][2] = { {X, Y}, {X, Y + SPRITE_HEIGHT - 1 },
-	{X + SPRITE_WIDTH - 1,Y + SPRITE_HEIGHT - 1}, {X + SPRITE_WIDTH - 1,Y} };
+	{X + SPRITE_WIDTH - 1, Y + SPRITE_HEIGHT - 1}, {X + SPRITE_WIDTH - 1,Y} };
 
-	
-	
-	for (list<Actor*>::iterator lt = ActorList.begin(); lt != ActorList.end(); lt++)
+	for (list<Actor*>::const_iterator lt = ActorList.begin(); lt != ActorList.end(); lt++)
 	{
 		if ((*lt)->getExistance() && (*lt)->isBlock())	//if the actor is alive and is a "blocklike" object
 		{
@@ -221,40 +219,57 @@ bool StudentWorld::accessible(double X, double Y)
 
 }
 
-bool StudentWorld::overlap(const Actor &A, const Actor &B) const
+bool StudentWorld::overlap(const double Ax, const double Ay, const double Bx, const double By) const
 {
-	double dx = pow((A.getX()- B.getX()), 2);
-	double dY = pow((A.getY()- B.getY()), 2);
+	double dx = pow(Ax - Bx, 2);
+	double dY = pow(Ay - By, 2);
 
 	if ((dx + dY) <= 100)
 		return true;
 	else return false;
+}
 
+bool StudentWorld::ActorOverlap(const Actor &A, const Actor &B) const
+{
+	return overlap(A.getX(), A.getY(), B.getX(), B.getY());
+}
+
+bool StudentWorld::flameable(const double X, const double Y) const
+{
+	for (list<Actor*>::const_iterator lt = ActorList.begin(); lt != ActorList.end(); lt++)
+	{
+		//if an Actor overlap with up comming fire
+		if ((*lt)->getExistance() && (*lt)->blockFlame() && overlap((*lt)->getX(), (*lt)->getY(), X, Y))
+		{
+			//cerr << "(" << X << ", " << Y << ") is not flameable" << endl;
+			//if the actor overlap with up coming fire will block the flame, return false(block the fire)
+			return false;
+
+		}
+	}
+	//cerr << "(" << X << ", " << Y << ") is flameable" << endl;
+	return true;
 }
 
 int StudentWorld::damage(Actor *source)
 {
     for (list<Actor*>::iterator lt = ActorList.begin(); lt != ActorList.end(); lt++)
     {
-        if ((*lt)->getExistance() && (*lt)->damageable() && overlap(*source, *(*lt))) 
+        if ((*lt)->getExistance() && (*lt)->damageable() && ActorOverlap(*source, *(*lt))) 
 		{
+			(*lt)->getDamage();
 			//if lt is an alive damageable actor and overlaps with damage source
-            if((*lt)->getType() == IID_CITIZEN)
-            {
-                increaseScore(-1000);    //lose 1000 pt
-                changeNumCitizen(-1);    //deduct number of citizen by 1;
-                playSound(SOUND_CITIZEN_DIE);
-            }
-            if((*lt)->getType() == IID_ZOMBIE)
+
+            if((*lt)->isZombie())
             {
                 increaseScore(1000);    //increase 1000 pt
                 playSound(SOUND_ZOMBIE_DIE);
             }
-            (*lt)->changeExistance();        //changeExistance to dead
+            (*lt)->setExistance(false);        //setExistance to dead
         }
     }
     
-    if (overlap(*source, *getPlayer())) //player got damage
+    if (ActorOverlap(*source, *getPlayer())) //player got damage
     {
         return -1; //return -1: player dead
     }
@@ -263,7 +278,7 @@ int StudentWorld::damage(Actor *source)
     return 0; // defult
 }
 
-list<Actor*>&  StudentWorld::GetList()
+list<Actor*>&  StudentWorld::getList()
 {
 	return ActorList;
 }
