@@ -2,12 +2,15 @@
 #define STUDENTWORLD_H_
 
 #include "GameWorld.h"
-#include "Actor.h"
+//#include "Actor.h"
 #include <string>
 #include <list>
 using namespace std;
 
 // Students:  Add code to this file, StudentWorld.cpp, Actor.h, and Actor.cpp
+
+class Actor;
+class Penelope;
 
 class StudentWorld : public GameWorld
 {

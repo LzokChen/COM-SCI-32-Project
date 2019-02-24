@@ -75,6 +75,7 @@ int StudentWorld::init()
 			
 			case Level::citizen:
 				ActorList.push_back(new Citizen(x, y, this));
+				changeNumCitizen(1);	
 				break;
 
 			case Level::wall:
@@ -108,8 +109,6 @@ int StudentWorld::move()
 	Player->doSomething();
 	if (Player->doSomething() == -1)	//if player is dead (by player's doSomething, die due to infection)
 	{
-		decLives();
-		playSound(SOUND_PLAYER_DIE);
 		return GWSTATUS_PLAYER_DIED;
 	}
 
@@ -126,8 +125,7 @@ int StudentWorld::move()
 				return GWSTATUS_FINISHED_LEVEL;
 				break;
 			case -1:
-				decLives();
-				playSound(SOUND_PLAYER_DIE);
+				getPlayer()->getDamage();
 				return GWSTATUS_PLAYER_DIED; 
 			}
 		}
@@ -256,25 +254,16 @@ int StudentWorld::damage(Actor *source)
     for (list<Actor*>::iterator lt = ActorList.begin(); lt != ActorList.end(); lt++)
     {
         if ((*lt)->getExistance() && (*lt)->damageable() && ActorOverlap(*source, *(*lt))) 
-		{
 			(*lt)->getDamage();
 			//if lt is an alive damageable actor and overlaps with damage source
-
-            if((*lt)->isZombie())
-            {
-                increaseScore(1000);    //increase 1000 pt
-                playSound(SOUND_ZOMBIE_DIE);
-            }
-            (*lt)->setExistance(false);        //setExistance to dead
-        }
     }
     
     if (ActorOverlap(*source, *getPlayer())) //player got damage
     {
+		getPlayer()->getDamage();
         return -1; //return -1: player dead
     }
-    
-    
+
     return 0; // defult
 }
 
