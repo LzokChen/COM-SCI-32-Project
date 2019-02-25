@@ -31,7 +31,7 @@ public:
     virtual int init();
     virtual int move();
     virtual void cleanUp();
-	bool accessible(double x, double Y) const;	//check if (X,Y) is accessible; 
+	bool accessible(Actor *A, double x, double Y) const;	//check if (X,Y) is accessible; 
 											//Non-accessible: (X,Y) is occupied by wall's,
 											//citizen's, zombie's or Penelope's bounding box
 

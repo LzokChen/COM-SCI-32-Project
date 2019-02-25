@@ -8,6 +8,8 @@
 #include<math.h>
 using namespace std;
 
+
+
 GameWorld* createStudentWorld(string assetPath)
 {
 	return new StudentWorld(assetPath);
@@ -66,7 +68,7 @@ int StudentWorld::init()
 				break;
 
 			case Level::dumb_zombie:
-				//
+				ActorList.push_back(new Dumb_Zombie(x, y, this));
 				break;
 
 			case Level::smart_zombie:
@@ -150,7 +152,8 @@ int StudentWorld::move()
 	ostringstream GameStat;
 	//Score: 004500 Level: 27 Lives: 3 Vaccines: 2 Flames: 16 Mines: 1 Infected: 0
 
-	GameStat << "Score: " << getScore() << "  ";
+	GameStat.fill('0');
+	GameStat << "Score: " << setw(6) << getScore() << "  ";
 	GameStat << "Level: "  << getLevel() << "  ";
 	GameStat << "Lives: "  << getLives() << "  ";
 	GameStat << "Vaccines: "  << Player->getNmVaccine() << "  ";
@@ -187,7 +190,7 @@ void StudentWorld::cleanUp()
 
 }
 
-bool StudentWorld::accessible(double X, double Y) const
+bool StudentWorld::accessible(Actor *A, double X, double Y) const
 {
 	//determinate the vertexs of the bounding Box of the actor move to (X,Y)
 	double vertex[4][2] = { {X, Y}, {X, Y + SPRITE_HEIGHT - 1 },
@@ -195,7 +198,7 @@ bool StudentWorld::accessible(double X, double Y) const
 
 	for (list<Actor*>::const_iterator lt = ActorList.begin(); lt != ActorList.end(); lt++)
 	{
-		if ((*lt)->getExistance() && (*lt)->isBlock())	//if the actor is alive and is a "blocklike" object
+		if ((*lt) != A && (*lt)->getExistance() && (*lt)->isBlock())	//if the actor is alive and is a "blocklike" object
 		{
 			//determinate the boundaries of the bounding box of the "blocklike" actor
 			double upperBound	= (*lt)->getY() + SPRITE_HEIGHT - 1;
@@ -213,8 +216,23 @@ bool StudentWorld::accessible(double X, double Y) const
 			}
 		}
 	}
-	return true;
 
+	//check if (X,Y) is occupied by player
+	if (A != Player)
+	{
+		double upperBound = Player->getY() + SPRITE_HEIGHT - 1;
+		double lowerBound = Player->getY();
+		double leftBound = Player->getX();
+		double rightBound = Player->getX() + SPRITE_WIDTH - 1;
+
+		for (int i = 0; i < 4; i++)
+		{
+			if (vertex[i][0] <= rightBound && vertex[i][0] >= leftBound
+				&& vertex[i][1] <= upperBound && vertex[i][1] >= lowerBound)
+				return false;
+		}
+	}
+	return true;
 }
 
 bool StudentWorld::overlap(const double Ax, const double Ay, const double Bx, const double By) const
@@ -234,6 +252,33 @@ bool StudentWorld::ActorOverlap(const Actor &A, const Actor &B) const
 
 bool StudentWorld::flameable(const double X, const double Y) const
 {
+
+	////determinate the vertexs of the bounding Box of the actor move to (X,Y)
+	//double vertex[4][2] = { {X, Y}, {X, Y + SPRITE_HEIGHT - 1 },
+	//{X + SPRITE_WIDTH - 1, Y + SPRITE_HEIGHT - 1}, {X + SPRITE_WIDTH - 1,Y} };
+
+	//for (list<Actor*>::const_iterator lt = ActorList.begin(); lt != ActorList.end(); lt++)
+	//{
+	//	if ((*lt)->getExistance() && (*lt)->blockFlame())	//if the actor is alive and is a "blockFlame" object
+	//	{
+	//		//determinate the boundaries of the bounding box of the "blocklike" actor
+	//		double upperBound = (*lt)->getY() + SPRITE_HEIGHT - 1;
+	//		double lowerBound = (*lt)->getY();
+	//		double leftBound = (*lt)->getX();
+	//		double rightBound = (*lt)->getX() + SPRITE_WIDTH - 1;
+
+	//		//check if one of the vertex inside the boundaries, 
+	//		//if it is, it implies that there are intersections btn two bounding boxs
+	//		for (int i = 0; i < 4; i++)
+	//		{
+	//			if (vertex[i][0] <= rightBound && vertex[i][0] >= leftBound
+	//				&& vertex[i][1] <= upperBound && vertex[i][1] >= lowerBound)
+	//				return false;
+	//		}
+	//	}
+	//}
+	//return true;
+
 	for (list<Actor*>::const_iterator lt = ActorList.begin(); lt != ActorList.end(); lt++)
 	{
 		//if an Actor overlap with up comming fire
@@ -253,7 +298,7 @@ int StudentWorld::damage(Actor *source)
 {
     for (list<Actor*>::iterator lt = ActorList.begin(); lt != ActorList.end(); lt++)
     {
-        if ((*lt)->getExistance() && (*lt)->damageable() && ActorOverlap(*source, *(*lt))) 
+        if ((*lt) != source && (*lt)->getExistance() && (*lt)->damageable() && ActorOverlap(*source, *(*lt)))
 			(*lt)->getDamage();
 			//if lt is an alive damageable actor and overlaps with damage source
     }

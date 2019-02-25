@@ -62,7 +62,7 @@ private:
 class Inanimate : public Actor
 {
 public:
-	Inanimate(int imageID, double StartX, double StartY, int depth, StudentWorld *sw,
+	Inanimate(int imageID, double StartX, double StartY, int StartDirection, int depth, StudentWorld *sw,
 		bool is_Block, bool block_Flame, bool damageable);
 	virtual ~Inanimate();
 };
@@ -140,7 +140,7 @@ public:
 class Projectile: public Inanimate
 {
 public:
-    Projectile(double StartX, double StartY, int imageID, StudentWorld *sw);
+    Projectile(double StartX, double StartY, int StartDirection, int imageID, StudentWorld *sw);
     virtual int doSomething();
 	virtual ~Projectile();
 private:
@@ -150,14 +150,14 @@ private:
 class Flame : public Projectile
 {
 public:
-    Flame(double StartX, double StartY, StudentWorld *sw);
+    Flame(double StartX, double StartY, int StartDirection, StudentWorld *sw);
     virtual int doSomething();
 };
 
 class Vomit : public Projectile
 {
 public:
-    Vomit(double StartX, double StartY, StudentWorld *sw);
+    Vomit(double StartX, double StartY, int StartDirection, StudentWorld *sw);
     virtual int doSomething();
 };
 
@@ -206,14 +206,37 @@ private:
 class Zombie : public Actor
 {
 public:
-	Zombie(double StartX, double StartY, int imageID, StudentWorld *sw);
+	Zombie(double StartX, double StartY, StudentWorld *sw);
 	virtual int doSomething();
 	virtual void getDamage();
+	virtual void selectDirection() = 0;
+	void randomDirection();
+	bool checkFrontandVomit();
 	virtual ~Zombie();
 
+private:
+	bool move();
+	int moveDistance;
+	int tickcount;
+};
+
+class Dumb_Zombie :public Zombie
+{
+public:
+	Dumb_Zombie(double StartX, double StartY, StudentWorld *sw);
+	virtual void getDamage();
+	virtual void selectDirection();
 
 private:
-	int infectionCount;
+	bool carVaccine;
+	void dropVaccineGooide();
+};
 
+class Smart_Zombie :public Zombie
+{
+public:
+	Smart_Zombie(double StartX, double StartY, StudentWorld *sw);
+	virtual void getDamage();
+	virtual void selectDirection();
 };
 #endif // ACTOR_H_
