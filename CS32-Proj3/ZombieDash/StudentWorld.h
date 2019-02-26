@@ -40,19 +40,28 @@ public:
 
 	bool flameable(const double X, const double Y) const;
 
-    int damage(Actor* source);
+    void doDamage(Actor* source);
+	
+	void determineDestination(const Actor *A, double block, double &destX, double &destY) const;
 
+	double getDistance(double Ax, double Ay, Actor *B) const;
+	Actor* nearestHuman(Actor *A, double &Distance) const;
+	Actor* nearestZombie(double Ax, double Ay, double &Distance) const;
+
+    void goNextLevel();
+    
 	list<Actor*>& getList();
 	Penelope* getPlayer() const;
 	int getNumCitizen() const;
 	void changeNumCitizen(int k);
 	~StudentWorld();
 private:
+	//get the distance between Actor A and actor B
+
 	list<Actor*> ActorList;
 	Penelope* Player;
 	int numCitizen;
-
-	bool gameWon;
+	bool nextLevel;	//nextLevel;
 	
 };
 

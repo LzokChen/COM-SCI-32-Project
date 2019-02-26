@@ -1,5 +1,6 @@
 #include "StudentWorld.h"
 #include "GameConstants.h"
+#include "GraphObject.h"
 #include "Actor.h"
 #include "Level.h"
 #include <string>
@@ -18,7 +19,7 @@ GameWorld* createStudentWorld(string assetPath)
 // Students:  Add code to this file, StudentWorld.h, Actor.h and Actor.cpp
 
 StudentWorld::StudentWorld(string assetPath)
-: GameWorld(assetPath), numCitizen(0), Player(nullptr), gameWon(false){}
+: GameWorld(assetPath), numCitizen(0), Player(nullptr), nextLevel(false){}
 
 int StudentWorld::init()
 {
@@ -35,7 +36,6 @@ int StudentWorld::init()
 	if (this->getLevel() == 100 || result == Level::load_fail_file_not_found)
 	{
 		cerr << "Cannot find "<< LevelFile << " data file" << endl;
-		gameWon = true;
 		return GWSTATUS_PLAYER_WON;
 	}
 	//the level file is not in the proper format
@@ -72,7 +72,7 @@ int StudentWorld::init()
 				break;
 
 			case Level::smart_zombie:
-				//
+				ActorList.push_back(new Smart_Zombie(x, y, this));
 				break;
 			
 			case Level::citizen:
@@ -107,30 +107,17 @@ int StudentWorld::init()
 
 int StudentWorld::move()
 {
-	//check if Player is alive 
+	//check if Player is alive
+    if (!Player->getExistance())    //if player is dead
+        return GWSTATUS_PLAYER_DIED;
+    
 	Player->doSomething();
-	if (Player->doSomething() == -1)	//if player is dead (by player's doSomething, die due to infection)
-	{
-		return GWSTATUS_PLAYER_DIED;
-	}
-
+	
 	//doSomething for alive actor
 	for (list<Actor*>::iterator lt = ActorList.begin(); lt != ActorList.end(); lt++)
 	{
 		if ((*lt)->getExistance())
-		{
-			int result = (*lt)->doSomething();
-			switch (result)
-			{
-			case 1:
-				playSound(SOUND_LEVEL_FINISHED);
-				return GWSTATUS_FINISHED_LEVEL;
-				break;
-			case -1:
-				getPlayer()->getDamage();
-				return GWSTATUS_PLAYER_DIED; 
-			}
-		}
+			(*lt)->doSomething();
 	}
 
 	//delete died actor
@@ -153,7 +140,10 @@ int StudentWorld::move()
 	//Score: 004500 Level: 27 Lives: 3 Vaccines: 2 Flames: 16 Mines: 1 Infected: 0
 
 	GameStat.fill('0');
-	GameStat << "Score: " << setw(6) << getScore() << "  ";
+	if (getScore() >= 0)
+		GameStat << "Score: " << setw(6) << getScore() << "  ";
+	else
+		GameStat << "Score: -" << setw(5) << abs(getScore()) << "  ";
 	GameStat << "Level: "  << getLevel() << "  ";
 	GameStat << "Lives: "  << getLives() << "  ";
 	GameStat << "Vaccines: "  << Player->getNmVaccine() << "  ";
@@ -163,14 +153,17 @@ int StudentWorld::move()
 
 	setGameStatText(GameStat.str());
 
-
-
-
+    if(nextLevel)
+    {
+        playSound(SOUND_LEVEL_FINISHED);
+        return GWSTATUS_FINISHED_LEVEL;
+    }
 	return GWSTATUS_CONTINUE_GAME;
 }
 
 void StudentWorld::cleanUp()
 {
+    nextLevel = false;
 	numCitizen = 0;
 	for (list<Actor*>::iterator lt = ActorList.begin(); lt != ActorList.end();)
 	{
@@ -237,10 +230,10 @@ bool StudentWorld::accessible(Actor *A, double X, double Y) const
 
 bool StudentWorld::overlap(const double Ax, const double Ay, const double Bx, const double By) const
 {
-	double dx = pow(Ax - Bx, 2);
+	double dX = pow(Ax - Bx, 2);
 	double dY = pow(Ay - By, 2);
 
-	if ((dx + dY) <= 100)
+	if ((dX + dY) <= 100)
 		return true;
 	else return false;
 }
@@ -294,7 +287,7 @@ bool StudentWorld::flameable(const double X, const double Y) const
 	return true;
 }
 
-int StudentWorld::damage(Actor *source)
+void StudentWorld::doDamage(Actor *source)
 {
     for (list<Actor*>::iterator lt = ActorList.begin(); lt != ActorList.end(); lt++)
     {
@@ -306,10 +299,88 @@ int StudentWorld::damage(Actor *source)
     if (ActorOverlap(*source, *getPlayer())) //player got damage
     {
 		getPlayer()->getDamage();
-        return -1; //return -1: player dead
     }
 
-    return 0; // defult
+    return; // defult
+}
+
+void StudentWorld::determineDestination(const Actor * A, double block, double & destX, double &destY) const
+{
+	switch (A -> getDirection())
+	{
+	case 90:
+		destX = A -> getX();
+		destY = A -> getY() + block * SPRITE_HEIGHT;
+		break;
+
+	case 270:
+		destX = A->getX();
+		destY = A->getY() - block * SPRITE_HEIGHT;
+		break;
+
+	case 180:
+		destX = A->getX() - block * SPRITE_WIDTH;
+		destY = A->getY();
+		break;
+
+	case 0:
+		destX = A->getX() + block * SPRITE_WIDTH;
+		destY = A->getY();
+		break;
+	}
+}
+
+double StudentWorld::getDistance(double Ax, double Ay, Actor *B) const
+{
+	double dX = pow(Ax - B->getX(), 2);
+	double dY = pow(Ay - B->getY(), 2);
+
+	return sqrt(dX + dY);
+}
+
+Actor* StudentWorld::nearestHuman(Actor * A, double &Distance) const
+{
+	Actor *NearestHuman = Player;		//assume that penelope is the nearest human
+	Distance = getDistance(A->getX(), A->getY(), NearestHuman);
+
+	for (list<Actor*>::const_iterator lt = ActorList.begin(); lt != ActorList.end(); lt++)
+	{
+		if ((*lt) != A && (*lt)->getExistance() && (*lt)->infectable())
+		{
+			if (getDistance(A->getX(), A->getY(), *lt) < Distance)
+			{
+				NearestHuman = *lt;
+				Distance = getDistance(A->getX(), A->getY(), NearestHuman);
+			}
+		}
+	}
+
+	return NearestHuman;
+}
+
+Actor * StudentWorld::nearestZombie(double Ax, double Ay, double & Distance) const
+{
+	Actor *NearestZombie = nullptr;
+	Distance = sqrt(pow(VIEW_WIDTH, 2) + pow(VIEW_HEIGHT, 2));	//set the initital distance is the diagonal length of the playground
+
+	for (list<Actor*>::const_iterator lt = ActorList.begin(); lt != ActorList.end(); lt++)
+	{
+		if ((*lt)->getExistance() && (*lt)->infectionSorce())
+		{
+			if (getDistance(Ax, Ay, *lt) < Distance)
+			{
+				NearestZombie = *lt;
+				Distance = getDistance(Ax, Ay, NearestZombie);
+			}
+		}
+	}
+
+	return NearestZombie;
+}
+
+void StudentWorld::goNextLevel()
+{
+    nextLevel = true;
 }
 
 list<Actor*>&  StudentWorld::getList()
@@ -336,4 +407,6 @@ StudentWorld::~StudentWorld()
 {
 	cleanUp();
 }
+
+
 
