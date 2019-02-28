@@ -365,7 +365,7 @@ Actor * StudentWorld::nearestZombie(double Ax, double Ay, double & Distance) con
 
 	for (list<Actor*>::const_iterator lt = ActorList.begin(); lt != ActorList.end(); lt++)
 	{
-		if ((*lt)->getExistance() && (*lt)->infectionSorce())
+		if ((*lt)->getExistance() && (*lt)->infectionSource())
 		{
 			if (getDistance(Ax, Ay, *lt) < Distance)
 			{

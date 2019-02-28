@@ -11,7 +11,7 @@ using namespace std;
 ///////   Actor  //////
 //constructor - Actor
 Actor::Actor(int imageID, double StartX, double StartY, int StartDirection, int depth, StudentWorld *sw ,
-	bool is_Block, bool block_Flame, bool damageable, bool  infectable, bool infectionSorce, bool triggersActiveLanmines)
+	bool is_Block, bool block_Flame, bool damageable, bool  infectable, bool infectionSource, bool triggersActiveLanmines)
 	: GraphObject(imageID, StartX, StartY, StartDirection, depth)
 {
 	SW = sw;
@@ -19,7 +19,7 @@ Actor::Actor(int imageID, double StartX, double StartY, int StartDirection, int 
 	m_blockFlame = block_Flame;
 	m_damageable = damageable;
 	m_infectable = infectable;
-	m_infectionSorce = infectionSorce;
+	m_infectionSource = infectionSource;
 	m_triggersActiveLanmines = triggersActiveLanmines;
 	m_existence = true;
 	m_infectionStatus = false;
@@ -82,9 +82,9 @@ bool Actor::infectable() const
 	return  m_infectable;
 }
 
-bool Actor::infectionSorce() const
+bool Actor::infectionSource() const
 {
-	return m_infectionSorce;
+	return m_infectionSource;
 }
 
 bool Actor::triggersActiveLandmines() const
@@ -278,7 +278,7 @@ void Landmine_Goodie::pickup()
 /////    Landmine   /////
 //constructor - Landmine
 Landmine::Landmine(double StartX, double StartY, StudentWorld *sw)
-	:Inanimate(IID_LANDMINE, StartX / SPRITE_WIDTH, StartY / SPRITE_HEIGHT, right, 1, sw, false, false, true), tickcount(45), activeStatus(false)
+	:Inanimate(IID_LANDMINE, StartX / SPRITE_WIDTH, StartY / SPRITE_HEIGHT, right, 1, sw, false, false, true), tickcount(30), activeStatus(false)
 {
 	cerr << "plants a landmine at (" << getX() << ", " << getY() << ")." << endl;
 }
@@ -338,8 +338,8 @@ void Landmine::trigger()
 
 ///////  Agent   //////
 //constructor - Agent
-Agent::Agent(double StartX, double StartY, int imageID, StudentWorld * sw, bool infectable, bool infectionSorce)
-	: Actor(imageID, SPRITE_WIDTH * StartX, SPRITE_HEIGHT * StartY, right, 0, sw, true, false, true, infectable, infectionSorce, true)
+Agent::Agent(double StartX, double StartY, int imageID, StudentWorld * sw, bool infectable, bool infectionSource)
+	: Actor(imageID, SPRITE_WIDTH * StartX, SPRITE_HEIGHT * StartY, right, 0, sw, true, false, true, infectable, infectionSource, true)
 {}
 
 void Agent::towardTo(Actor * Target)
@@ -366,8 +366,8 @@ void Agent::towardTo(Actor * Target)
 	else									//	randomly choose a direction : Horizontal
 	{
 		if (getX() < Target->getX())
-			setDirection(left);
-		else setDirection(right);
+			setDirection(right);
+		else setDirection(left);
 	}
 }
 
@@ -447,7 +447,7 @@ Human::~Human()
 ////// Penelope  //////
 //constructor - Penelope
 Penelope::Penelope(double StartX, double StartY, StudentWorld *sw)
-	:Human(StartX, StartY, IID_PLAYER, sw), numLandmine(110), numFCharge(110), numVaccine(110){}
+	:Human(StartX, StartY, IID_PLAYER, sw), numLandmine(0), numFCharge(0), numVaccine(0){}
 
 void Penelope::action()
 {

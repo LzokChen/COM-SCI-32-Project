@@ -13,7 +13,7 @@ class Actor : public GraphObject
 public:
 	//constructor
 	Actor(int imageID, double StartX, double StartY, int StartDirection, int depth, StudentWorld *sw,
-		bool is_Block, bool block_Flame, bool damageable, bool  infectable, bool infectionSorce, bool m_triggersActiveLanmines);
+		bool is_Block, bool block_Flame, bool damageable, bool  infectable, bool infectionSource, bool m_triggersActiveLanmines);
 
 	//from base class GraphObject
 	//double getX() const; // in pixels (0-255)
@@ -28,7 +28,7 @@ public:
 	bool blockFlame() const;
 	bool damageable() const;
 	bool infectable() const;
-	bool infectionSorce()	const;
+	bool infectionSource()	const;
 	bool triggersActiveLandmines() const;
 
 	bool getInfectionStatus() const;
@@ -39,9 +39,6 @@ public:
 	void setExistance(bool existance);
 	StudentWorld * getSW() const;
 	virtual void doSomething() = 0;
-	//return  0: defult
-	//return -1: Actor "Died"
-	//return  1: next level
 
 	virtual ~Actor();
 
@@ -54,7 +51,7 @@ private:
 	bool m_blockFlame;
 	bool m_damageable;
 	bool m_infectable;
-	bool m_infectionSorce;
+	bool m_infectionSource;
 	bool m_triggersActiveLanmines;
 
 	
@@ -160,8 +157,8 @@ private:
 class Agent : public Actor
 {
 public:
-	Agent(double StartX, double StartY, int imageID, StudentWorld *sw, bool infectable, bool infectionSorce);
-	virtual void towardTo(Actor *Target);
+	Agent(double StartX, double StartY, int imageID, StudentWorld *sw, bool infectable, bool infectionSource);
+	void towardTo(Actor *Target);
 	bool tryToMoveForward(double numPixels);
 };
 
