@@ -23,24 +23,24 @@ public:
 	//void setDirection(Direction d); // {up, down, left, right}
 
 	
-	bool getExistance() const;
-	bool isBlock() const;
-	bool blockFlame() const;
-	bool damageable() const;
-	bool infectable() const;
-	bool infectionSource()	const;
-	bool triggersActiveLandmines() const;
+	bool getExistance() const;				//get the existance status of actor
+	void setExistance(bool existance);		//change the existance status of actor
+	bool isBlock() const;					//determinate if the actor is an blocklike object
+	bool blockFlame() const;				//determinate if the actor block the flame
+	bool damageable() const;				//determinate if the actor is damageable
+	bool infectable() const;				//determinate if the actor is infectable
+	bool infectionSource()	const;			//determinate if the actor is an infection source
+	bool triggersActiveLandmines() const;	//determinate if th actor can trigger an active landmine
 
-	bool getInfectionStatus() const;
-	void setInfectionStatus(bool k);
+	bool getInfectionStatus() const;		//get the infection status of actor
+	void setInfectionStatus(bool k);		//change the existance status of actor (if it is infectable)
 
-	virtual void useExit();
-	virtual void getDamage();
-	void setExistance(bool existance);
-	StudentWorld * getSW() const;
+	virtual void useExit();					//if actor overlap with the Exit object
+	virtual void getDamage();				//if the actor get damage
+	StudentWorld * getSW() const;			//get the studentworld that actor belongs to
 	virtual void doSomething() = 0;
 
-	virtual ~Actor();
+	virtual ~Actor();						//destructor
 
 private:
 
@@ -70,21 +70,21 @@ class Wall : public Inanimate
 {
 public:
 	Wall(double StartX, double startY, StudentWorld *sw);
-	virtual void doSomething();
+	virtual void doSomething();	//do nothing
 };
 
 class Exit : public Inanimate
 {
 public:
 	Exit(double StartX, double startY, StudentWorld *sw);
-	virtual void doSomething();
+	virtual void doSomething();	//check if any alive actor overlap with the exit
 };
 
 class Pit : public Inanimate
 {
 public:
     Pit(double StartX, double startY, StudentWorld*sw);
-    virtual void doSomething();
+    virtual void doSomething();	//Let the pit do damage to the alive damageable actor who overlap with it 
 };
 
 class Projectile : public Inanimate
@@ -102,14 +102,14 @@ class Flame : public Projectile
 {
 public:
 	Flame(double StartX, double StartY, int StartDirection, StudentWorld *sw);
-	virtual void action();
+	virtual void action();		//Let the Flame do damage to the alive damageable actor who overlap with it 
 };
 
 class Vomit : public Projectile
 {
 public:
 	Vomit(double StartX, double StartY, int StartDirection, StudentWorld *sw);
-	virtual void action();
+	virtual void action();		//infect the infectable actor (human) overlap with the vomit
 };
 
 class Goodie : public Inanimate
@@ -117,7 +117,7 @@ class Goodie : public Inanimate
 public:
 	Goodie(double StartX, double StartY, int imageID, StudentWorld *sw);
 	virtual void doSomething();
-	virtual void pickup() = 0;
+	virtual void pickup() = 0;	//do the pickup action: increase the number of certain item player have
 	virtual ~Goodie();
 };
 
@@ -147,19 +147,19 @@ class Landmine : public Inanimate
 public:
 	Landmine(double StartX, double StartY, StudentWorld *sw);
 	virtual void doSomething();
-	virtual void getDamage();
+	virtual void getDamage();	//if the landmine get damage (from flame)
 private:
 	int tickcount;
 	bool activeStatus;
-	void trigger();
+	void trigger();				//trigger the landmine, introduce flames and pit
 };
 
 class Agent : public Actor
 {
 public:
 	Agent(double StartX, double StartY, int imageID, StudentWorld *sw, bool infectable, bool infectionSource);
-	void towardTo(Actor *Target);
-	bool tryToMoveForward(double numPixels);
+	void towardTo(Actor *Target);				//set the agnet direction toward to the target actor
+	bool tryToMoveForward(double numPixels);	//try to move agent forword certain pixels in current direction
 };
 
 class Human : public Agent
@@ -168,7 +168,7 @@ public:
 	Human(double StartX, double StartY, int imageID, StudentWorld *sw);
 	virtual void doSomething();
     virtual void action() = 0;
-	int getInfectionCount() const;
+	int getInfectionCount() const;				//get the infection cout of human
 	virtual ~Human();
 	
 
@@ -181,38 +181,37 @@ class Penelope : public Human
 {
 public:
 	Penelope(double StartX, double StartY, StudentWorld *sw);
-    virtual void action();
-	virtual void getDamage();
-	virtual void useExit();
-	//virtual bool useExit(Actor *exit);
+    virtual void action();					//get user's input and to the certian action
+	virtual void getDamage();				//if Penelope get damage
+	virtual void useExit();					//if Penelope overlap with the exit
 
 
-	int getNumLandmine() const;
-	int getNumFCharge() const;
-	int getNmVaccine() const;
+	int getNumLandmine() const;				//get the number of landmine Penelope have
+	int getNumFCharge() const;				//get the number of Flame Charge Penelope have
+	int getNmVaccine() const;				//get the number of Vaccine Penelope have
 
-	void incNumLandmine(int i);
-	void incNumFCharge(int i);
-	void incNumVaccine(int i);
+	void incNumLandmine(int i);				//increase the number of landmine Penelope have by i
+	void incNumFCharge(int i);				//increase the number of Flame charge Penelope have by i
+	void incNumVaccine(int i);				//increase the number of vaccine Penelope have by i
 	
 
 private:
 	int numLandmine, numFCharge, numVaccine;
-	void fire() const;
+	void fire() const;						//Penelope fire the flames
 };
 
 class Citizen : public Human
 {
 public:
 	Citizen(double StartX, double StartY, StudentWorld *sw);
-    virtual void action();
-	virtual void getDamage();
-	virtual void useExit();
+    virtual void action();					//determinate if citizen need to move toward to Penelope or move away from zombies
+	virtual void getDamage();				//if citizen get damage
+	virtual void useExit();					//if citizen overlap with exit
 
 private:
 	int tickcount;
-	bool moveTowardToPenelope();
-	bool moveAwayFromZombie(double original_dist_z);
+	bool moveTowardToPenelope();						//try to move citizon toward to penelope
+	bool moveAwayFromZombie(double original_dist_z);	//try to move away from the nearest zombie
 };
 
 class Zombie : public Agent
@@ -220,10 +219,10 @@ class Zombie : public Agent
 public:
 	Zombie(double StartX, double StartY, StudentWorld *sw);
 	virtual void doSomething();
-	virtual void getDamage();
+	virtual void getDamage();				//if Zombie get damage
 	virtual void selectDirection() = 0;
-	void randomDirection();
-	bool checkFrontandVomit();
+	void randomDirection();					//randomly select directon for zombie
+	bool checkFrontandVomit();				//check front if it is an human and the vomit
 	virtual ~Zombie();
 
 private:
@@ -235,19 +234,19 @@ class Dumb_Zombie :public Zombie
 {
 public:
 	Dumb_Zombie(double StartX, double StartY, StudentWorld *sw);
-	virtual void getDamage();
-	virtual void selectDirection();
+	virtual void getDamage();				//if dumb zombie get damage
+	virtual void selectDirection();			//select distance for the dumb zombie
 
 private:
 	bool carVaccine;
-	void dropVaccineGooide();
+	void dropVaccineGooide();				//throw the vaccine goodie
 };
 
 class Smart_Zombie :public Zombie
 {
 public:
 	Smart_Zombie(double StartX, double StartY, StudentWorld *sw);
-	virtual void getDamage();
-	virtual void selectDirection();
+	virtual void getDamage();				//if smart zombie get damage
+	virtual void selectDirection();			//select distance for the smart zombie to chase the human
 };
 #endif // ACTOR_H_

@@ -154,6 +154,7 @@ int StudentWorld::move()
 
 	setGameStatText(GameStat.str());
 
+	//if the current level finished
     if(nextLevel)
     {
         playSound(SOUND_LEVEL_FINISHED);
@@ -183,7 +184,7 @@ void StudentWorld::cleanUp()
 	}
 
 }
-
+//check if (X,Y) is accessible
 bool StudentWorld::accessible(Actor *A, double X, double Y) const
 {
 	//determinate the vertexs of the bounding Box of the actor move to (X,Y)
@@ -229,6 +230,7 @@ bool StudentWorld::accessible(Actor *A, double X, double Y) const
 	return true;
 }
 
+//check if Actor A whose coordinate is(Ax, Ay) is overlap with Actor B whose coordiante is (Bx, By)
 bool StudentWorld::overlap(const double Ax, const double Ay, const double Bx, const double By) const
 {
 	double dX = pow(Ax - Bx, 2);
@@ -239,11 +241,13 @@ bool StudentWorld::overlap(const double Ax, const double Ay, const double Bx, co
 	else return false;
 }
 
+//check if Actor A and Actor B are overlap
 bool StudentWorld::ActorOverlap(const Actor &A, const Actor &B) const
 {
 	return overlap(A.getX(), A.getY(), B.getX(), B.getY());
 }
 
+//check if we can introduce a flame at (X, Y)
 bool StudentWorld::flameable(const double X, const double Y) const
 {
 
@@ -288,6 +292,7 @@ bool StudentWorld::flameable(const double X, const double Y) const
 	return true;
 }
 
+//let the actor source to do the damage to all the alive damageable actors who are overlap with the damage source
 void StudentWorld::doDamage(Actor *source)
 {
     for (list<Actor*>::iterator lt = ActorList.begin(); lt != ActorList.end(); lt++)
@@ -305,6 +310,7 @@ void StudentWorld::doDamage(Actor *source)
     return; // defult
 }
 
+//determinate the destination corrdinate (X,Y) of actor A if we move actor A certain block in current direction
 void StudentWorld::determineDestination(const Actor * A, double block, double & destX, double &destY) const
 {
 	switch (A -> getDirection())
@@ -331,6 +337,7 @@ void StudentWorld::determineDestination(const Actor * A, double block, double & 
 	}
 }
 
+//get the distance between corrdinate (Ax, Ay) and actor B
 double StudentWorld::getDistance(double Ax, double Ay, Actor *B) const
 {
 	double dX = pow(Ax - B->getX(), 2);
@@ -339,6 +346,7 @@ double StudentWorld::getDistance(double Ax, double Ay, Actor *B) const
 	return sqrt(dX + dY);
 }
 
+//find the nearest Human for Actor A and get the distance
 Actor* StudentWorld::nearestHuman(Actor * A, double &Distance) const
 {
 	Actor *NearestHuman = Player;		//assume that penelope is the nearest human
@@ -359,6 +367,7 @@ Actor* StudentWorld::nearestHuman(Actor * A, double &Distance) const
 	return NearestHuman;
 }
 
+//find the nearest Zombie from coordinate (Ax, Ay) and get the distance
 Actor * StudentWorld::nearestZombie(double Ax, double Ay, double & Distance) const
 {
 	Actor *NearestZombie = nullptr;
@@ -384,21 +393,25 @@ void StudentWorld::goNextLevel()
     nextLevel = true;
 }
 
+//get the actor list
 list<Actor*>&  StudentWorld::getList()
 {
 	return ActorList;
 }
 
+//get the player 
 Penelope * StudentWorld::getPlayer() const
 {
 	return Player;
 }
 
+//get the number of alive citizen
 int StudentWorld::getNumCitizen() const
 {
 	return numCitizen;
 }
 
+//change the number of alive citizen
 void StudentWorld::changeNumCitizen(int k)
 {
 	numCitizen += k;

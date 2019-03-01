@@ -32,28 +32,39 @@ public:
     virtual int move();
     virtual void cleanUp();
 	bool accessible(Actor *A, double x, double Y) const;	//check if (X,Y) is accessible; 
-											//Non-accessible: (X,Y) is occupied by wall's,
-											//citizen's, zombie's or Penelope's bounding box
+															//Non-accessible: (X,Y) is occupied by wall's,
+															//citizen's, zombie's or Penelope's bounding box
 
+	//check if Actor A whose coordinate is(Ax, Ay) is overlap with Actor B whose coordiante is (Bx, By)
 	bool overlap(const double Ax, const double Ay, const double Bx, const double By) const;
+	
+	//check if Actor A and Actor B are overlap
 	bool ActorOverlap(const Actor &A, const Actor &B) const;
-
+	
+	//check if we can introduce a flame at (X, Y)
 	bool flameable(const double X, const double Y) const;
-
+	
+	//let the actor source to do the damage to all the alive damageable actors who are overlap with the damage source
     void doDamage(Actor* source);
 	
+	//determinate the destination corrdinate (X,Y) of actor A if we move actor A certain block in current direction
 	void determineDestination(const Actor *A, double block, double &destX, double &destY) const;
-
+	
+	//get the distance between corrdinate (Ax, Ay) and actor B
 	double getDistance(double Ax, double Ay, Actor *B) const;
+
+	//find the nearest Human for Actor A and get the distance
 	Actor* nearestHuman(Actor *A, double &Distance) const;
+
+	//find the nearest Zombie from coordinate (Ax, Ay) and get the distance
 	Actor* nearestZombie(double Ax, double Ay, double &Distance) const;
 
     void goNextLevel();
     
-	list<Actor*>& getList();
-	Penelope* getPlayer() const;
-	int getNumCitizen() const;
-	void changeNumCitizen(int k);
+	list<Actor*>& getList();		//get the actor list
+	Penelope* getPlayer() const;	//get the player 
+	int getNumCitizen() const;		//get the number of alive citizen
+	void changeNumCitizen(int k);	//change the number of alive citizen
 	~StudentWorld();
 private:
 	//get the distance between Actor A and actor B

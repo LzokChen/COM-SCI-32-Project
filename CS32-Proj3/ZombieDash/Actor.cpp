@@ -26,78 +26,73 @@ Actor::Actor(int imageID, double StartX, double StartY, int StartDirection, int 
 	
 }
 
-bool Actor::getExistance() const
+bool Actor::getExistance() const			//get the existance status of actor
 {
 	return m_existence;
 };
 
-void Actor::setExistance(bool existance)
+void Actor::setExistance(bool existance)	//change the existance status of actor
 {
 	m_existence = existance;
 }
 
-bool Actor::getInfectionStatus() const
+bool Actor::getInfectionStatus() const		//get the infection status of actor
 {
 	return m_infectionStatus;
 }
-
-void Actor::setInfectionStatus(bool k)
+	
+void Actor::setInfectionStatus(bool k)		//change the existance status of actor (if it is infectable)
 {
 	if (m_infectable)
 		m_infectionStatus = k;
 }
 
-void Actor::useExit()
+void Actor::useExit()						//if actor overlap with the Exit object
 {
 }
 
-void Actor::getDamage()
+void Actor::getDamage()						//if the actor get damage
 {
 	if (m_damageable)
 		m_existence = false;
 }
 
-StudentWorld * Actor::getSW() const
+StudentWorld * Actor::getSW() const			//get the studentworld that actor belongs to
 {
 	return SW;
 }
 
-bool Actor::isBlock() const
+bool Actor::isBlock() const					//determinate if the actor is an blocklike object
 {
 	return m_isBlock;
 }
 
-bool Actor::blockFlame() const
+bool Actor::blockFlame() const				//determinate if the actor block the flame
 {
 	return m_blockFlame;
 }
 
-bool Actor::damageable() const
+bool Actor::damageable() const				//determinate if the actor is damageable
 {
 	return m_damageable;
 }
 
-bool Actor::infectable() const
+bool Actor::infectable() const				//determinate if the actor is infectable
 {
 	return  m_infectable;
 }
 
-bool Actor::infectionSource() const
+bool Actor::infectionSource() const			//determinate if the actor is an infection source
 {
 	return m_infectionSource;
 }
 
-bool Actor::triggersActiveLandmines() const
+bool Actor::triggersActiveLandmines() const	//determinate if th actor can trigger an active landmine
 {
 	return m_triggersActiveLanmines;
 }
 
-
-
-
-
-
-Actor:: ~Actor() {};
+Actor:: ~Actor() {};						//destructor
 ///////////////////////
 ////////////////////////////////////////
 
@@ -128,7 +123,7 @@ Exit::Exit(double StartX, double StartY, StudentWorld *sw)
 	:Inanimate(IID_EXIT, StartX, StartY, right, 1, sw, false, true, false){}
 
 void Exit::doSomething() {
-
+	//check if any alive actor overlap with the exit
 	for (list<Actor*>::iterator lt = getSW()->getList().begin(); lt != getSW()->getList().end(); lt++)
 	{
 		if ((*lt)->getExistance() && getSW()->ActorOverlap(*this, *(*lt)))
@@ -147,7 +142,7 @@ Pit::Pit(double StartX, double StartY, StudentWorld *sw)
 	:Inanimate(IID_PIT, StartX, StartY, 0, right, sw, false, false, false) {}
 
 void Pit::doSomething()
-{
+{	//Let the pit do damage to the alive damageable actor who overlap with it 
     getSW()->doDamage(this);
 }
 ///////////////////////
@@ -160,9 +155,9 @@ Projectile::Projectile(double StartX, double StartY, int StartDirection, int ima
 
 void Projectile::doSomething()
 {
-	if (!getExistance()) return;  //projectile is "dead"
-
-	if (tickcount <= 0)
+	if (!getExistance()) return;	//projectile is "dead"
+	
+	if (tickcount <= 0)				//check the tickcout
 	{
 		setExistance(false);
 		return;
@@ -170,7 +165,7 @@ void Projectile::doSomething()
 	else
 		tickcount--;
 
-	action();
+	action();						//do the certain action
 }
 Projectile::~Projectile()
 {
@@ -184,9 +179,9 @@ Flame::Flame(double StartX, double StartY, int StartDirection, StudentWorld *sw)
 	//cerr << "flame at: (" << getX() << ", " << getY() <<")"<< endl;
 }
 
-void Flame::action()
+void Flame::action()				
 {
-	getSW()->doDamage(this);
+	getSW()->doDamage(this);		//Let the Flame do damage to the alive damageable actor who overlap with it 
 }
 ///////////////////////
 
@@ -195,22 +190,22 @@ void Flame::action()
 Vomit::Vomit(double StartX, double StartY, int StartDirection, StudentWorld *sw)
 	:Projectile(StartX, StartY, StartDirection, IID_VOMIT, sw) {}
 
-void Vomit::action()
+void Vomit::action()	//infect the infectable actor (human) overlap with the vomit
 {
 	for (list<Actor*>::iterator lt = getSW()->getList().begin(); lt != getSW()->getList().end(); lt++)
 	{
 		if ((*lt) != this && (*lt)->getExistance() && (*lt)->infectable() && getSW()->ActorOverlap(*this, *(*lt)))
 			//if lt is an alive infectable actor and overlaps with Vomit
 		{
-			if (!((*lt)->getInfectionStatus()))
-				(*lt)->setInfectionStatus(true);
+			if (!((*lt)->getInfectionStatus()))		//if actor is not infected
+				(*lt)->setInfectionStatus(true);	//change the infection status to be true
 		}
 	}
 
-	if (getSW()->ActorOverlap(*this, *(getSW()->getPlayer())))//player got infect
+	if (getSW()->ActorOverlap(*this, *(getSW()->getPlayer())))	//player got infect
 	{
-		if (!(getSW()->getPlayer()->getInfectionStatus()))	//if player is not infected
-			getSW()->getPlayer()->setInfectionStatus(true);
+		if (!(getSW()->getPlayer()->getInfectionStatus()))		//if player is not infected
+			getSW()->getPlayer()->setInfectionStatus(true);		//change the infection status to be true
 	}
 }
 ///////////////////////
@@ -227,7 +222,7 @@ void Goodie::doSomething()
 
 	if (getSW()->ActorOverlap(*this, *(getSW()->getPlayer())))	//player pickup the Goodie
 	{
-		pickup();
+		pickup();									//do the pickup action: increase the number of certain item player have
 		setExistance(false);						//set to "dead"
 		getSW()->increaseScore(50);					//player earn 50 pt
 		getSW()->playSound(SOUND_GOT_GOODIE);		//sound effect
@@ -287,17 +282,18 @@ void Landmine::doSomething()
 {
 	if (!getExistance()) return; //the Landmine is not alive, ruturn 0 by defult;
 
-	if (activeStatus)    //active
+	if (activeStatus)    //if the landmine is active
 	{
 		for (list<Actor*>::iterator lt = getSW()->getList().begin(); lt != getSW()->getList().end(); lt++)
 		{
+			//if a alive damagable overlaps with(step on) an active landmine, trigger the landmine
 			if ((*lt)->getExistance() && getSW()->ActorOverlap(*this, *(*lt)) && (*lt)->triggersActiveLandmines())
 			{
 				trigger();
-				//if a alive damagable overlaps with(step on) an active landmine, trigger the landmine
 			}
 		}
-
+		
+		//if player overlaps with(step on) an active landmine, trigger the landmine
 		if (getSW()->getPlayer()->getExistance() && getSW()->ActorOverlap(*this, *getSW()->getPlayer()))
 			trigger();
 	}
@@ -308,18 +304,19 @@ void Landmine::doSomething()
 	}
 }
 
-void Landmine::getDamage()
+void Landmine::getDamage()	//if the landmine get damage (from flame), trigger the landmine
 {
 	trigger();
 }
 
 void Landmine::trigger()
 {
-	if (!getExistance()) return;
+	if (!getExistance()) return;					//if the landmine is "dead", return directly
 	cerr << "trigger the lanmine: (" << getX() << ", " << getY() << ")." << endl;
 	setExistance(false);							//set eixstance to "dead"
 	getSW()->playSound(SOUND_LANDMINE_EXPLODE);		//play sound effect
 
+	//introduce flames round it
 	for (int y = -1; y <= 1; y++)
 	{
 		for (int x = -1; x <= 1; x++)
@@ -342,6 +339,7 @@ Agent::Agent(double StartX, double StartY, int imageID, StudentWorld * sw, bool 
 	: Actor(imageID, SPRITE_WIDTH * StartX, SPRITE_HEIGHT * StartY, right, 0, sw, true, false, true, infectable, infectionSource, true)
 {}
 
+//set the agnet direction toward to the target actor
 void Agent::towardTo(Actor * Target)
 {
 	if (getX() == Target->getX())		//if same col
@@ -357,20 +355,21 @@ void Agent::towardTo(Actor * Target)
 			setDirection(right);
 		else setDirection(left);
 	}
-	else if (randInt(1, 2) == 1)			//randomly choose a direction : Vertical
+	else if (randInt(1, 2) == 1)			//randomly choose a direction : Vertically
 	{
-		if (getY() < Target->getY())
+		if (getY() < Target->getY())		//if agent is below the target
 			setDirection(up);
 		else setDirection(down);
 	}
-	else									//	randomly choose a direction : Horizontal
+	else									//	randomly choose a direction : Horizontally
 	{
-		if (getX() < Target->getX())
+		if (getX() < Target->getX())		//if agent is on the left side of  the target
 			setDirection(right);
 		else setDirection(left);
 	}
 }
 
+//try to move agent forword certain pixels in current direction
 bool Agent::tryToMoveForward(double numPixels)
 {
 	switch (getDirection())
@@ -433,7 +432,7 @@ void Human::doSomething()
    
 }
 
-int Human::getInfectionCount() const
+int Human::getInfectionCount() const	//get the infection cout of human
 {
 	return infectionCount;
 }
@@ -449,6 +448,7 @@ Human::~Human()
 Penelope::Penelope(double StartX, double StartY, StudentWorld *sw)
 	:Human(StartX, StartY, IID_PLAYER, sw), numLandmine(0), numFCharge(0), numVaccine(0){}
 
+//get user's input and to the certian action
 void Penelope::action()
 {
     if (!getExistance())
@@ -513,6 +513,7 @@ void Penelope::action()
     }
 }
 
+//if Penelope get Damage
 void Penelope::getDamage()
 {
 	getSW()->decLives();					//deduct live by 1
@@ -520,43 +521,44 @@ void Penelope::getDamage()
 	setExistance(false);					//set existance to false
 }
 
+//if Penelope overlap with the exit
 void Penelope::useExit()
 {
 	if(getSW()->getNumCitizen() == 0)
 		getSW()->goNextLevel();
 }
 
-int Penelope::getNumLandmine() const
+int Penelope::getNumLandmine() const		//get the number of landmine Penelope have
 {
 	return numLandmine;
 }
 
-int Penelope::getNumFCharge() const
+int Penelope::getNumFCharge() const			//get the number of Flame Charge Penelope have
 {
 	return numFCharge;
 }
 
-int Penelope::getNmVaccine() const
+int Penelope::getNmVaccine() const			//get the number of Vaccine Penelope have
 {
 	return numVaccine;
 }
 
-void Penelope::incNumLandmine(int i)
+void Penelope::incNumLandmine(int i)		//increase the number of landmine Penelope have by i
 {
 	numLandmine += i;
 }
 
-void Penelope::incNumFCharge(int i)
+void Penelope::incNumFCharge(int i)			//increase the number of Flame charge Penelope have by i
 {
 	numFCharge += i;
 }
 
-void Penelope::incNumVaccine(int i)
+void Penelope::incNumVaccine(int i)			//increase the number of vaccine Penelope have by i
 {
 	numVaccine += i;
 }
-
-void Penelope::fire() const
+	
+void Penelope::fire() const					//Penelope fire the flames
 {
 	getSW()->playSound(SOUND_PLAYER_FIRE);
 	
@@ -565,7 +567,7 @@ void Penelope::fire() const
 		//determinate destination coordinate
 		double dest_X = 0.0, dest_Y = 0.0;
 		getSW()->determineDestination(this, i, dest_X, dest_Y);
-
+		//check if we can introduce a flame at that destination corrdiante
 		if (getSW()->flameable(dest_X, dest_Y))
 			getSW()->getList().push_back(new Flame(dest_X / SPRITE_WIDTH, dest_Y / SPRITE_HEIGHT, getDirection(), getSW()));
 		else return;
@@ -581,13 +583,14 @@ Citizen::Citizen(double StartX, double StartY, StudentWorld *sw)
 void Citizen::action()
 {
 	
-	if (!getExistance())	
+	if (!getExistance())	//if citizen is dead (due to infection)
 	{
 		cerr << "A Citizen got fully infective, ";
 		getSW()->playSound(SOUND_ZOMBIE_BORN);
 		getSW()->increaseScore(-1000);
 		getSW()->changeNumCitizen(-1);
 
+		//introduce a smart zombie or dumb zombie randomly
 		int i = randInt(1, 10);
 		if (i <= 3)
 		{
@@ -609,9 +612,9 @@ void Citizen::action()
 	tickcount++;
 	if (tickcount % 2 == 0)	return;	//in parlyzed Tick
 
-	double dist_p = getSW()->getDistance(getX(), getY(), getSW()->getPlayer());
+	double dist_p = getSW()->getDistance(getX(), getY(), getSW()->getPlayer());	//get the distance to the player
 	double dist_z = 0.0;
-	Actor * nearestZombie = getSW()->nearestZombie(getX(), getY(), dist_z);
+	Actor * nearestZombie = getSW()->nearestZombie(getX(), getY(), dist_z);		//get the distance to the nearest zombie
 
 	//citizen is much more closer to penelope (<=80) than zombies, or there is no zombie
 	if ((dist_p < dist_z || nearestZombie == nullptr) && dist_p <= 80)
@@ -638,6 +641,7 @@ void Citizen::useExit()
 	getSW()->playSound(SOUND_CITIZEN_SAVED);	//play the sound effect
 }
 
+//try to move citizon toward to penelope
 bool Citizen::moveTowardToPenelope()
 {
 	towardTo(getSW()->getPlayer());
@@ -669,6 +673,7 @@ bool Citizen::moveTowardToPenelope()
 	return false;	//fail to move toward to penelope
 }
 
+//check if citaizen can mvove away extend the distance from the nearest zombie
 bool Citizen::moveAwayFromZombie(double original_dist_z)
 {
 	double dest_X = 0.0, dest_Y = 0.0;
@@ -677,7 +682,7 @@ bool Citizen::moveAwayFromZombie(double original_dist_z)
 	if (getSW()->accessible(this, getX(), getY() + 2)) //check up
 	{
 		double tempDistance;
-		getSW()->nearestZombie(getX(), getY() + 2, tempDistance);
+		getSW()->nearestZombie(getX(), getY() + 2, tempDistance);	//get the new distance from the nearestZombie if citizen move up 2 pixels
 		if (tempDistance > shortestDistance)
 		{
 			shortestDistance = tempDistance;
@@ -689,7 +694,7 @@ bool Citizen::moveAwayFromZombie(double original_dist_z)
 	if (getSW()->accessible(this, getX(), getY() - 2)) //check down
 	{
 		double tempDistance;
-		getSW()->nearestZombie(getX(), getY() - 2, tempDistance);
+		getSW()->nearestZombie(getX(), getY() - 2, tempDistance);	//get the new distance from the nearestZombie if citizen move down 2 pixels
 		if (tempDistance > shortestDistance)
 		{
 			shortestDistance = tempDistance;
@@ -701,7 +706,7 @@ bool Citizen::moveAwayFromZombie(double original_dist_z)
 	if (getSW()->accessible(this, getX() + 2, getY())) //check right
 	{
 		double tempDistance;
-		getSW()->nearestZombie(getX() + 2, getY(), tempDistance);
+		getSW()->nearestZombie(getX() + 2, getY(), tempDistance);	//get the new distance from the nearestZombie if citizen move right 2 pixels
 		if (tempDistance > shortestDistance)
 		{
 			shortestDistance = tempDistance;
@@ -713,7 +718,7 @@ bool Citizen::moveAwayFromZombie(double original_dist_z)
 	if (getSW()->accessible(this, getX() - 2, getY())) //check left
 	{
 		double tempDistance;
-		getSW()->nearestZombie(getX() - 2, getY(), tempDistance);
+		getSW()->nearestZombie(getX() - 2, getY(), tempDistance);	//get the new distance from the nearestZombie if citizen move left 2 pixels
 		if (tempDistance > shortestDistance)
 		{
 			shortestDistance = tempDistance;
@@ -749,11 +754,11 @@ void Zombie::doSomething()
 	if (tickcount % 2 == 0)	return; //in parlyzed Tick
 		
 
-	if (checkFrontandVomit()) return;
-
+	if (checkFrontandVomit()) return;	//check if there is an infectable actor at front of Zombie
+										//and try to vomit
 	if (moveDistance == 0)
 	{
-		moveDistance += randInt(3, 10);
+		moveDistance += randInt(3, 10);	//randomly select the moveDistance from 3~10
 		selectDirection();				//call derive class zombie's selectDirection
 	}
 
@@ -764,12 +769,14 @@ void Zombie::doSomething()
 	
 }
 
+//if Zombie get damage
 void Zombie::getDamage()
 {
 	getSW()->playSound(SOUND_ZOMBIE_DIE);	//sound effect
 	setExistance(false);					//set existance to dead
 }
 
+//randomly select directon for zombie
 void Zombie::randomDirection()
 {
 	int Dir = randInt(1, 4);
@@ -786,7 +793,7 @@ void Zombie::randomDirection()
 	}
 }
 
-bool Zombie::checkFrontandVomit()
+bool Zombie::checkFrontandVomit()	//check if there is an infectable actor at front of Zombie, if it does vomit 
 {
 	//determinate destination coordinate
 	double dest_X =0.0, dest_Y = 0.0;
@@ -794,6 +801,7 @@ bool Zombie::checkFrontandVomit()
 
 	bool findPerson = false;
 
+	//check if there is an citizen at the front of the zombie
 	for (list<Actor*>::iterator lt = getSW()->getList().begin(); lt != getSW()->getList().end(); lt++)
 	{
 		if ((*lt)->getExistance() && (*lt)->infectable() && getSW()->overlap(dest_X, dest_Y, (*lt)->getX(), (*lt)->getY()))
@@ -802,12 +810,12 @@ bool Zombie::checkFrontandVomit()
 			break;
 		}
 	}
-
+	//check if the palyer at the front of the zombie
 	if (getSW()->overlap(dest_X, dest_Y, getSW()->getPlayer()->getX(), getSW()->getPlayer()->getY()))
 	{
 		findPerson = true;
 	}
-
+	//ramdomly decide to vomit or not
 	if (findPerson && randInt(1, 3) == 1)
 	{
 		getSW()->getList().push_back(new Vomit(dest_X / SPRITE_WIDTH, dest_Y / SPRITE_HEIGHT, getDirection(), getSW()));
@@ -828,12 +836,13 @@ Zombie::~Zombie()
 Dumb_Zombie::Dumb_Zombie(double StartX, double StartY, StudentWorld * sw)
 	:Zombie(StartX, StartY, sw)
 {
-	if (randInt(1, 10) == 1)
+	if (randInt(1, 10) == 1)		//randomly determinate if dumb zombie carries a vaccine goodie
 		carVaccine = true;
 	else carVaccine = false;
 }
 
-void Dumb_Zombie::getDamage()
+//if dumb zombie get damage
+void Dumb_Zombie::getDamage()		
 {
 	Zombie::getDamage();
 	getSW()->increaseScore(1000);
@@ -841,11 +850,13 @@ void Dumb_Zombie::getDamage()
 		dropVaccineGooide();
 }
 
+//select distance for the dumb zombie
 void Dumb_Zombie::selectDirection()
 {
 	randomDirection();
 }
 
+//throw the vaccine goodie
 void Dumb_Zombie::dropVaccineGooide()
 {
 	//select random direction
@@ -884,12 +895,14 @@ Smart_Zombie::Smart_Zombie(double StartX, double StartY, StudentWorld * sw)
 {
 }
 
+//if smart zombie get damage
 void Smart_Zombie::getDamage()
 {
 	Zombie::getDamage();
 	getSW()->increaseScore(2000);
 }
 
+//select distance for the smart zombie to chase the human
 void Smart_Zombie::selectDirection()
 {
 	double distance = 0.0;
