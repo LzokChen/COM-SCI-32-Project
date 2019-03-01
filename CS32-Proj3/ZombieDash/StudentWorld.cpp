@@ -107,6 +107,7 @@ int StudentWorld::init()
 
 int StudentWorld::move()
 {
+
 	//check if Player is alive
     if (!Player->getExistance())    //if player is dead
         return GWSTATUS_PLAYER_DIED;
@@ -296,7 +297,7 @@ void StudentWorld::doDamage(Actor *source)
 			//if lt is an alive damageable actor and overlaps with damage source
     }
     
-    if (ActorOverlap(*source, *getPlayer())) //player got damage
+    if (getPlayer()->getExistance() && ActorOverlap(*source, *getPlayer())) //player got damage
     {
 		getPlayer()->getDamage();
     }
