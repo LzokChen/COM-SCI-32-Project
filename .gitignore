@@ -40,6 +40,12 @@ CS32-HW4/CS32-HW4/x64/
 CS32-HW4/Debug/
 CS32-HW4/CS32-HW4/Debug/
 
+#proj 4
+CS32-Proj4/x64/
+CS32-Proj4/CS32-Proj4/x64/
+CS32-Proj4/Debug/
+CS32-Proj4/CS32-Proj4/Debug/
+
 
 # Visual Studio 2015/2017 cache/options directory
 .vs/
