@@ -31,7 +31,7 @@ private:
 	void FreeTree(Node *cur);	
 
 	//a recursive function that is used to search for the value associated with a given key string
-	//assume that the root node's label match the first char of the key.
+	//assume that the root node's label match the first element of the key.
 	void findval(const string& key, bool exactMatchOnly, Node* root, int unmatchCounter, vector<ValueType>& result) const;
 };
 
