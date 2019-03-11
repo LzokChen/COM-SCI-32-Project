@@ -1,8 +1,10 @@
 #include "provided.h"
+#include "Trie.h"
 #include <string>
 #include <vector>
 #include <iostream>
 #include <fstream>
+#include <list>
 using namespace std;
 
 class GenomeMatcherImpl
@@ -14,21 +16,44 @@ public:
     bool findGenomesWithThisDNA(const string& fragment, int minimumLength, bool exactMatchOnly, vector<DNAMatch>& matches) const;
     bool findRelatedGenomes(const Genome& query, int fragmentMatchLength, bool exactMatchOnly, double matchPercentThreshold, vector<GenomeMatch>& results) const;
 private:
+	int minSL;
+	struct DNAsequence
+	{
+		Genome* Gptr;
+		int position;
+
+	};
+	list<Genome> GenomeList;
+	Trie<DNAsequence> GenomeTrie;
+
 };
 
 GenomeMatcherImpl::GenomeMatcherImpl(int minSearchLength)
 {
-    // This compiles, but may not be correct
+	minSL = minSearchLength;
 }
 
 void GenomeMatcherImpl::addGenome(const Genome& genome)
 {
-    // This compiles, but may not be correct
+	DNAsequence temp;
+	GenomeList.push_back(Genome(genome));
+	temp.Gptr = &GenomeList.back();
+	
+	int num_subsequence = temp.Gptr->length() - minSL + 1;
+
+	for (int pos = 0; pos < num_subsequence; pos++)
+	{
+		string label;
+		temp.Gptr->extract(pos, minSL, label);
+		temp.position = pos;
+
+		GenomeTrie.insert(label, temp);
+	}
 }
 
 int GenomeMatcherImpl::minimumSearchLength() const
 {
-    return 0;  // This compiles, but may not be correct
+    return minSL;  
 }
 
 bool GenomeMatcherImpl::findGenomesWithThisDNA(const string& fragment, int minimumLength, bool exactMatchOnly, vector<DNAMatch>& matches) const

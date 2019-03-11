@@ -65,8 +65,8 @@ bool GenomeImpl::load(istream& genomeSource, vector<Genome>& genomes)
 		genomes.push_back(Genome(name, sequence));	//store the last pending Genome
 	else return false;								//improper format: no base line after a name line, the pending Genome has a empty string	Case 4
 	
-	if (genomes.size() != 0) return true; //load some Genomes successfully.
-    else return false;  
+	return true; //load some Genomes successfully.
+ 
 }
 
 int GenomeImpl::length() const

@@ -1,6 +1,5 @@
 #ifndef TRIE_INCLUDED
 #define TRIE_INCLUDED
-
 #include <string>
 #include <vector>
 #include <list>
@@ -107,12 +106,11 @@ void Trie<ValueType>::FreeTree(Node *cur)
 {
 	if (cur == nullptr) return;
 
-
 	typename vector<Node*>::iterator it = cur->childrenList.begin();
 	while (it != cur->childrenList.end())
 	{
-		FreeTree(*it);
-		(cur->childrenList).erase(it);	//remove the node from the chilren list
+		FreeTree(*it);					//free the substree of *it
+		(cur->childrenList).erase(it);	//remove the children nodes it from the cur's chilren list
 		it = cur->childrenList.begin();
 	}
 	delete cur;	//delete the Node
