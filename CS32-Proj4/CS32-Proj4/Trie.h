@@ -26,12 +26,12 @@ private:
 		vector<Node*> childrenList;
 	};
 	Node* root;
-	//a function for delete the sub trie tree whoes root is pointed by cur Node pointer
+	//a recursive function for delete the sub trie tree whose root node is pointed by cur pointer
 	void FreeTree(Node *cur);	
 
 	//a recursive function that is used to search for the value associated with a given key string
 	//assume that the root node's label match the first element of the key.
-	void findval(const string& key, bool exactMatchOnly, Node* root, int unmatchCounter, vector<ValueType>& result) const;
+	void findval(const string& key, bool exactMatchOnly, Node* root, int unmatchedCounter, vector<ValueType>& result) const;
 };
 
 
@@ -62,7 +62,7 @@ void Trie<ValueType>::reset()
 template<typename ValueType>
 void Trie<ValueType>::insert(const std::string& key, const ValueType& value)
 {
-	Node* sub = root;
+	Node* sub = root;				//start from the root node
 	for (int k = 0; k < key.size(); k++)
 	{
 		Node* temp = sub;
@@ -74,7 +74,7 @@ void Trie<ValueType>::insert(const std::string& key, const ValueType& value)
 				break;
 			}
 		}
-		if (sub == temp)		//if we didn't find the child Node we are looking for
+		if (sub == temp)		//if sub is unchange, it means we didn't find the child Node we are looking for
 		{
 			Node* NEW = new Node;
 			NEW->label = key[k];
@@ -118,11 +118,11 @@ void Trie<ValueType>::FreeTree(Node *cur)
 
 /////////////////////////////////////////////
 template<typename ValueType>
-void Trie<ValueType>::findval(const string& key, bool exactMatchOnly, Node* root, int unmatchCounter, vector<ValueType>& result) const
+void Trie<ValueType>::findval(const string& key, bool exactMatchOnly, Node* root, int unmatchedCounter, vector<ValueType>& result) const
 {
-	if (!exactMatchOnly && unmatchCounter > 1) return;	//if it is not exact_macth_Only and it already unmatched for more than 1 time, return
+	if (!exactMatchOnly && unmatchedCounter > 1) return;	//if it is not exact_macth_Only and it already unmatched for more than 1 time, return
 
-	if (key.size() == 0)	//if there is no more element in the key string we need to check, it means we matched all the elements of the key and reach the node that we need.
+	if (key.size() == 0)	//if there is no more element in the key string we need to check, it means we match all the elements of the key and reach the node that we need.
 	{	
 		for (typename list<ValueType>::iterator it = root->vals.begin(); it != root->vals.end(); it++)
 			result.push_back(*it); //push all values into the vector
@@ -133,9 +133,9 @@ void Trie<ValueType>::findval(const string& key, bool exactMatchOnly, Node* root
 	{
 		string substring = key.substr(1);	//get the substring that contain the elements we need to match in the next trial.
 		if (root->childrenList[i]->label == key[0])	//if the label match
-			findval(substring, exactMatchOnly, root->childrenList[i], unmatchCounter, result);
-		else if (!exactMatchOnly)	//if the label is not exactMatchOnly, increase the unmatch counter
-			findval(substring, exactMatchOnly, root->childrenList[i], ++unmatchCounter, result);
+			findval(substring, exactMatchOnly, root->childrenList[i], unmatchedCounter, result);
+		else if (!exactMatchOnly)	//if the label is not match and is not exactMatchOnly, increase the unmatched counter
+			findval(substring, exactMatchOnly, root->childrenList[i], unmatchedCounter + 1, result);
 	}
 
 

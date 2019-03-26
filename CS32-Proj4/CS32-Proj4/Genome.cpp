@@ -36,7 +36,7 @@ bool GenomeImpl::load(istream& genomeSource, vector<Genome>& genomes)
 		if (temp[0] == '>')	//if it is an name line
 		{
 			if (temp.size() == 1) return false; //improper format: a line starting with a greater-than character but containing no other characters	Case 6
-			if (name != "")	//if the name is not an empty string, it means there is a temp Genome pending to store.
+			if (name != "")	//if the name is not an empty string, it means there already has a temp Genome pending to store.
 			{
 				if (sequence == "")
 					return false; //improper format: no base line after a name line, the pending Genome has a empty string	Case 4
@@ -71,7 +71,7 @@ bool GenomeImpl::load(istream& genomeSource, vector<Genome>& genomes)
 
 int GenomeImpl::length() const
 {
-    return genomeSequence.size();  
+    return (int)genomeSequence.size();  
 }
 
 string GenomeImpl::name() const
